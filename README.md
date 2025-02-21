@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛠️ **Complaint Management System**  
 
-## Getting Started
+A **web-based complaint management system** built with **Next.js** and **PostgreSQL**. This system allows employees to submit complaints, and admins to manage and resolve them efficiently.  
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 📌 **Features**
+### 🔹 **User Roles & Authentication**
+- ✅ **JWT-based authentication** using **NextAuth.js**
+- ✅ Role-based access (**Admin & Employee**)  
+- ✅ **Admins** can register new users  
+- ✅ **Employees** can submit complaints  
+
+### 🔹 **Complaint Management**
+- 📝 Employees can submit complaints with details:
+  - **Building, Floor, Area, Complaint Type, Details**
+- 📊 Admins can:
+  - **Update complaint status** (*In-Progress → Resolved*)
+  - **Assign completion date**
+  - **Manage users, areas, complaint types**
+  - **Generate PDF reports**
+
+### 🔹 **Admin Panel**
+- 🛠️ `/admin` route for complaint & user management  
+- 📈 Dashboard with **analytics & filters**  
+
+### 🔹 **Tech Stack**
+- 🚀 **Frontend:** Next.js, React, Tailwind CSS  
+- 🗄️ **Backend:** Next.js API Routes, PostgreSQL  
+- 🔑 **Auth:** NextAuth.js (JWT-based)  
+
+---
+
+## 📂 **Project Structure**
+```
+/src
+ ├── app
+ │   ├── api
+ │   │   ├── users/[id]/route.ts     # Delete user API
+ │   │   ├── complaints/route.ts     # CRUD for complaints
+ │   │   ├── areas/route.ts          # Manage areas
+ │   │   ├── auth/route.ts           # Authentication
+ │   ├── admin/page.tsx              # Admin Dashboard
+ │   ├── complaints/page.tsx         # Complaint Form
+ │   ├── login/page.tsx              # Login Page
+ ├── components
+ |   ├── AdminComplaintTable.tsx
+ │   ├── ComplaintForm.tsx
+ |   ├── ComplaintTable.tsx
+ │   ├── ManageUsers.tsx
+ │   ├── ManageAreas.tsx
+ ├── middleware.ts                   # Role-based access control
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ **Setup & Installation**
+### 📌 **1️⃣ Clone the Repository**
+```bash
+git clone https://github.com/amujtaba527/ComplaintManagementSystem.git
+cd ComplaintManagementSystem
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📌 **2️⃣ Install Dependencies**
+```bash
+npm install
+```
 
-## Learn More
+### 📌 **3️⃣ Set Up Environment Variables**
+Create a `.env.local` file and add:
+```env
+DATABASE_URL=postgres://your_postgres_user:your_password@localhost:5432/your_database
+NEXTAUTH_SECRET=your_secret
+NEXTAUTH_URL=http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 📌 **4️⃣ Run Migrations (If Using Prisma)**
+```bash
+npx prisma migrate dev --name init
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 📌 **5️⃣ Start the Development Server**
+```bash
+npm run dev
+```
+🚀 App will be live at **`http://localhost:3000`**  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛠️ **API Endpoints**
+| Method | Endpoint                 | Description              | Access |
+|--------|--------------------------|--------------------------|--------|
+| **POST** | `/api/auth/login`       | Login user               | Public |
+| **GET**  | `/api/auth/session`     | Get current session      | Authenticated |
+| **POST** | `/api/complaints`       | Submit a new complaint   | Employee |
+| **GET**  | `/api/complaints`       | View all complaints      | Admin |
+| **DELETE** | `/api/users/[id]`     | Delete a user            | Admin |
+| **GET**  | `/api/users`            | View all users           | Admin |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎯 **To-Do / Future Enhancements**
+- ✅ Add **real-time updates** using WebSockets  
+- ✅ Improve **UI/UX** with better dashboards  
+- ✅ Implement **email notifications** for status updates  
+
+---
+
+## 👨‍💻 **Contributors**
+- 🚀 **Syed Ahmad Mujtaba** – [GitHub](https://github.com/amujtaba527)  
+
+---
+🚀 **Happy Coding!** 🎯
