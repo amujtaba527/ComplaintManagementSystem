@@ -19,11 +19,11 @@ export async function PUT(req: Request) {
       await pool.query("UPDATE users SET role = $1 WHERE id = $2", [role, id]);
       return NextResponse.json({ message: "User role updated successfully" });
     } catch (error) {
-      return NextResponse.json({ error: "Error updating user role" }, { status: 500 });
+      return NextResponse.json({ error: "Error updating user role" + error }, { status: 500 });
     }
   }
   
-  export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
     const session = await getServerSession(authOptions);
     const {id} = await params;
     if (!session || session.user.role !== "admin") {
@@ -40,8 +40,7 @@ export async function PUT(req: Request) {
       await pool.query("DELETE FROM users WHERE id = $1", [userId]);
       return NextResponse.json({ message: "User deleted successfully" });
     } catch (error) {
-      console.error("Error deleting user:", error);
-      return NextResponse.json({ error: "Error deleting user" }, { status: 500 });
+      return NextResponse.json({ error: "Error deleting user" + error }, { status: 500 });
     }
   }
   

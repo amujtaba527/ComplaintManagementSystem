@@ -46,7 +46,7 @@ export default function ComplaintForm() {
         }));
         setComplaintTypes(formattedTypes);
       } catch (error) {
-        console.error("Error fetching areas or complaint types", error);
+        alert('Error fetching complaint types' + error);
       }
     }
 
@@ -69,7 +69,7 @@ export default function ComplaintForm() {
     }
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!session?.user?.id) {
@@ -96,12 +96,12 @@ export default function ComplaintForm() {
         details: "",
       });
       
-      const selectElements = document.querySelectorAll('select');
+      const selectElements = document.querySelectorAll<HTMLSelectElement>('select');
       selectElements.forEach(select => {
         select.value = '';
       });
       
-      const textarea = document.querySelector('textarea');
+      const textarea = document.querySelector<HTMLTextAreaElement>('textarea');
       if (textarea) {
         textarea.value = '';
       }
@@ -141,7 +141,7 @@ export default function ComplaintForm() {
       <label className="text-black block">Complaint Area:</label>
       <select name="area" onChange={handleChange} className="w-full p-2 mb-2 border text-black">
         <option value="">Select Area</option>
-        {areas.map((area: any) => (
+        {areas.map((area: Area) => (
           <option key={area.id} value={area.area_name}>
             {area.area_name}
           </option>
@@ -152,7 +152,7 @@ export default function ComplaintForm() {
       <label className="text-black block">Complaint Type:</label>
       <select name="complaintType" onChange={handleChange} className="w-full p-2 mb-2 border text-black">
         <option value="">Select Complaint Type</option>
-        {complaintTypes.map((type: any) => (
+        {complaintTypes.map((type: ComplaintType) => (
           <option key={type.id} value={type.type_name}>
             {type.type_name}
           </option>

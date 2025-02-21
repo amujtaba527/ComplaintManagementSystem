@@ -8,7 +8,7 @@ export async function GET() {
     const res = await pool.query("SELECT * FROM areas ORDER BY area_name ASC");
     return NextResponse.json(res.rows);
   } catch (error) {
-    return NextResponse.json({ error: "Error fetching areas" }, { status: 500 });
+    return NextResponse.json({ error: "Error fetching areas" + error }, { status: 500 });
   }
 }
 
@@ -28,7 +28,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Area added successfully", area: res.rows[0] });
   } catch (error) {
-    console.error("Error adding area:", error);
-    return NextResponse.json({ error: "Error adding area" }, { status: 500 });
+    return NextResponse.json({ error: "Error adding area" + error }, { status: 500 });
   }
 }

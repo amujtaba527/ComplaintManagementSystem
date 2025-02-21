@@ -16,7 +16,6 @@ export default function ManageAreas() {
           area_name: type.area_name
         }));
         setAreas(formattedAreas);
-        console.log(formattedAreas);
       })
       .catch((error) => console.error("Error fetching areas:", error));
   }, []);
@@ -44,14 +43,13 @@ export default function ManageAreas() {
       setAreas([...areas, data.area]);
       setNewArea("");
     } catch (error) {
-      console.error("Error adding area:", error);
       alert(error);
     }
   };
   
 
   const deleteArea = async (id: number) => {
-    await fetch(`/api/areas/${id}`, { method: "DELETE" });
+    await fetch(`/api/areas/${id.toString()}`, { method: "DELETE" });
 
     setAreas(areas.filter((area) => area.id !== id));
   };

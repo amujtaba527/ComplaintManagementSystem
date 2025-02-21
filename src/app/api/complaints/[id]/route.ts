@@ -3,7 +3,7 @@ import { pool } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -11,7 +11,6 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const body = await req.json();
 
     if (session.user.role === "admin" && body.completion_date) {
-      console.log('Admin resolving complaint:', { id: id, completion_date: body.completion_date }); // Debug log
       
       const res = await pool.query(
         `UPDATE complaints 
@@ -30,13 +29,13 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
 
   }catch (error) {
-    return NextResponse.json({ error: "Error updating complaint" }, { status: 500 });
+    return NextResponse.json({ error: "Error updating complaint" + error }, { status: 500 });
   }
 }
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -54,11 +53,11 @@ export async function PUT(
 
     return NextResponse.json(res.rows[0]);
   } catch (error) {
-    return NextResponse.json({ error: "Error updating complaint" }, { status: 500 });
+    return NextResponse.json({ error: "Error updating complaint" + error }, { status: 500 });
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   const {id} = await params;
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -73,6 +72,6 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     return NextResponse.json({ message: "Complaint deleted successfully" });
   } catch (error) {
-    return NextResponse.json({ error: "Error deleting complaint" }, { status: 500 });
+    return NextResponse.json({ error: "Error deleting complaint" + error }, { status: 500 });
   }
 }

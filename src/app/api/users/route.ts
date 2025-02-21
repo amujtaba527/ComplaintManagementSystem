@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 
 
-export async function GET(req: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions);
   
   // Only allow admins to view users
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     const res = await pool.query("SELECT id, name, email, role FROM users ORDER BY created_at DESC");
     return NextResponse.json(res.rows);
   } catch (error) {
-    return NextResponse.json({ error: "Error fetching users" }, { status: 500 });
+    return NextResponse.json({ error: "Error fetching users" + error }, { status: 500 });
   }
 }
 
@@ -49,6 +49,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(res.rows[0]);
   } catch (error) {
-    return NextResponse.json({ error: "Error adding user" }, { status: 500 });
+    return NextResponse.json({ error: "Error adding user" + error }, { status: 500 });
   }
 }

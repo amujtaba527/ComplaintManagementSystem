@@ -38,8 +38,7 @@ export default function AdminComplaintTable() {
       setSelectedDate(null);
       setComplaintToResolve(null);
     } catch (error) {
-      console.error('Error marking complaint as resolved:', error);
-      alert('Failed to mark complaint as resolved');
+      alert('Failed to mark complaint as resolved' + error);
     }
   };
 
@@ -62,7 +61,7 @@ export default function AdminComplaintTable() {
             </tr>
           </thead>
           <tbody>
-            {complaints.map((complaint: any) => (
+            {complaints.map((complaint: Complaint) => (
               <tr key={complaint.id} className="border">
                 <td className="border p-2 text-black">{complaint.building}</td>
                 <td className="border p-2 text-black">{complaint.floor}</td>
@@ -118,7 +117,7 @@ export default function AdminComplaintTable() {
 
       {/* Card view for small screens */}
       <div className="md:hidden space-y-4">
-        {complaints.map((complaint: any) => (
+        {complaints.map((complaint: Complaint) => (
           <div key={complaint.id} className="border rounded-lg p-4 bg-gray-50">
             <div className="grid grid-cols-2 gap-2">
               <div>

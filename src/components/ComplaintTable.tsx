@@ -16,7 +16,7 @@ export default function ComplaintTable() {
       const data = await response.json();
       setComplaints(data);
     } catch (error) {
-      console.error('Error fetching complaints:', error);
+      alert('Error fetching complaints' + error);
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export default function ComplaintTable() {
           fetchComplaints();
         }
       } catch (error) {
-        console.error('Error deleting complaint:', error);
+        alert('Error deleting complaint' + error);
       }
     }
   };
@@ -69,7 +69,7 @@ export default function ComplaintTable() {
         fetchComplaints();
       }
     } catch (error) {
-      console.error('Error updating complaint:', error);
+      alert('Error updating complaint' + error);
     }
   };
 

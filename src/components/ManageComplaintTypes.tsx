@@ -16,10 +16,9 @@ export default function ManageComplaintTypes() {
           type_name: type.type_name 
         }));
         setComplaintTypes(formattedTypes);
-        console.log(formattedTypes);
       })
       .catch(error => {
-        console.error("Error fetching complaint types:", error);
+        alert('Error fetching complaint types' + error);
       });
   }, []);
 
@@ -40,7 +39,7 @@ export default function ManageComplaintTypes() {
       }]);
       setNewType("");
     } catch (error) {
-      console.error("Error adding complaint type:", error);
+      alert('Error adding complaint type' + error);
     }
   };
 

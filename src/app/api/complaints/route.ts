@@ -31,7 +31,7 @@ export async function GET() {
       return NextResponse.json(res.rows);
     }
   } catch (error) {
-    return NextResponse.json({ error: "Error fetching complaints" }, { status: 500 });
+    return NextResponse.json({ error: "Error fetching complaints" + error }, { status: 500 });
   }
 }
 
@@ -41,7 +41,6 @@ export async function POST(req: Request) {
 
   try {
     const data = await req.json();
-    console.log("Received Data:", data); 
     const { building, floor, area_id, complaint_type_id, details } = data;
     const user_id = session.user.id;
 
@@ -57,11 +56,8 @@ export async function POST(req: Request) {
     const values = [user_id, building, floor, area_id, complaint_type_id, details];
     const res = await pool.query(query, values);
 
-    console.log("Inserted Data:", res.rows[0]);
-
     return NextResponse.json(res.rows[0]);
   } catch (error) {
-    console.error("Error submitting complaint:", error);
-    return NextResponse.json({ error: "Error submitting complaint" }, { status: 500 });
+    return NextResponse.json({ error: "Error submitting complaint" + error }, { status: 500 });
   }
 }
