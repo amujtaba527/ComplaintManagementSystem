@@ -14,20 +14,5 @@ export const pool = new Pool({
 });
 
 pool.connect()
-  .then(() => {alert("✅ Database connected successfully!")})
-  .catch((err) => {alert("❌ Database connection failed:" + err)});
-
-  async function runInitScript() {
-    try {
-      const client = await pool.connect();
-      const sql = await fs.readFile('./init-db.sql', 'utf8'); 
-      await client.query(sql);
-      client.release();
-    } catch (error) {
-      alert('Database initialization failed' + error);
-    } finally {
-      await pool.end(); 
-    }
-  }
-  
-  runInitScript();
+  .then(() => {throw ('Connected to database')})
+  .catch((err) => {throw new Error('Error connecting to database: ' + err)});

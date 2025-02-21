@@ -6,13 +6,6 @@ import bcrypt from "bcryptjs";
 
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  
-  // Only allow admins to view users
-  if (!session || session.user.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
-
   try {
     const res = await pool.query("SELECT id, name, email, role FROM users ORDER BY created_at DESC");
     return NextResponse.json(res.rows);

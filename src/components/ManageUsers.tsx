@@ -128,7 +128,7 @@ export default function ManageUsers() {
       </div>
 
       {/* User List */}
-      {loading && <p>Loading users...</p>}
+      {loading && <p className="text-gray-800">Loading users...</p>}
       {error && <p className="text-red-500">{error}</p>}
       
       {/* Table view for medium and larger screens */}

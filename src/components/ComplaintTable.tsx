@@ -74,7 +74,7 @@ export default function ComplaintTable() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-black">Loading...</div>;
   }
 
   return (
