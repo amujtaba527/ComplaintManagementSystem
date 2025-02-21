@@ -85,6 +85,12 @@ npm run dev
 ```
 🚀 App will be live at **`http://localhost:3000`**  
 
+### 📌 **6️⃣ Default Login Credentials**
+```
+Email: admin@example.com
+Password: admin123
+```
+
 ---
 
 ## 🛠️ **API Endpoints**

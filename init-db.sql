@@ -1,9 +1,3 @@
--- Drop tables if they already exist (for development purposes)
--- DROP TABLE IF EXISTS complaints;
--- DROP TABLE IF EXISTS complaint_types;
--- DROP TABLE IF EXISTS areas;
--- DROP TABLE IF EXISTS users;
-
 -- Create Users Table
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -42,10 +36,6 @@ CREATE TABLE IF NOT EXISTS complaints (
     FOREIGN KEY (area_id) REFERENCES areas(id) ON DELETE CASCADE,
     FOREIGN KEY (complaint_type_id) REFERENCES complaint_types(id) ON DELETE CASCADE
 );
-
--- Insert Default Admin User (Change password after first login)
--- INSERT INTO users (name, email, password, role) 
--- VALUES ('Admin User', 'admin@example.com', '$2a$10$ABCDEFGHabcdefgh1234567890ABCDEFGHabcdefgh1234567890', 'admin');
 
 -- Insert Some Default Complaint Types
 -- INSERT INTO complaint_types (type_name) VALUES
