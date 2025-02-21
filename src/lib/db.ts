@@ -1,6 +1,5 @@
 import { Pool } from "pg";
 import dotenv from "dotenv";
-import fs from 'fs/promises';
 
 dotenv.config();
 
