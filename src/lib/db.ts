@@ -14,4 +14,4 @@ export const pool = new Pool({
 
 pool.connect()
   .then(() => {throw ('Connected to database')})
-  .catch((err) => {throw new Error('Error connecting to database: ' + err)});
+  .catch((err) => {throw Error('Error connecting to database: ' + err)});
