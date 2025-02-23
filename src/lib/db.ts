@@ -13,5 +13,5 @@ export const pool = new Pool({
 });
 
 pool.connect()
-  .then(() => {throw ('Connected to database')})
-  .catch((err) => {throw Error('Error connecting to database: ' + err)});
+  .then(() => {console.log("✅ Database connected")})
+  .catch((err) => {console.error("❌ Database connection error", err)});
