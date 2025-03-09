@@ -98,7 +98,7 @@ export default function ManageUsers() {
           />
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Username"
             value={newUser.email}
             onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
             className="border text-black border-gray-300 rounded-md p-2 w-full"
@@ -137,7 +137,7 @@ export default function ManageUsers() {
           <thead>
             <tr className="bg-gray-200">
               <th className="border text-black border-gray-300 px-4 py-2">Name</th>
-              <th className="border text-black border-gray-300 px-4 py-2">Email</th>
+              <th className="border text-black border-gray-300 px-4 py-2">Username</th>
               <th className="border text-black border-gray-300 px-4 py-2">Role</th>
               <th className="border text-black border-gray-300 px-4 py-2">Actions</th>
             </tr>
