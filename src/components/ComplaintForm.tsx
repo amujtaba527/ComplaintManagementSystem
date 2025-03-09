@@ -122,9 +122,9 @@ export default function ComplaintForm() {
       <label className="text-black block">Building:</label>
       <select name="building" onChange={handleChange} className="w-full p-2 mb-2 border text-black">
         <option value="">Select Building</option>
-        <option value="Building A">Building A</option>
-        <option value="Building B">Building B</option>
-        <option value="Building C">Building C</option>
+        <option value="Building A">Building 1</option>
+        <option value="Building B">Building 2</option>
+        <option value="Building C">Building 3</option>
       </select>
 
       {/* Floor Selection */}
