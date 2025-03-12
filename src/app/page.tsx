@@ -15,7 +15,7 @@ export default function HomePage() {
       if (session?.user?.role === "admin") {
         router.push("/admin");
       } else if (session?.user?.role === "employee") {
-        router.push("/dashboard");
+        router.push("/complaintentry");
       }
     }
   }, [session, status, router]);

@@ -9,22 +9,20 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     const {id} = await params;
     const body = await req.json();
-
-    if (session.user.role === "admin" && body.completion_date) {
-      
+    if (session.user.role === "admin" && body.resolution_date && body.action) {
       const res = await pool.query(
         `UPDATE complaints 
          SET resolution_date = $1, 
-             status = 'Resolved' 
-         WHERE id = $2 
+             status = 'Resolved',
+             action = $2
+         WHERE id = $3
          RETURNING *`,
-        [body.completion_date, id]
+        [body.resolution_date,body.action, id]
       );
 
       if (res.rowCount === 0) {
         return NextResponse.json({ error: "Complaint not found" }, { status: 404 });
       }
-
       return NextResponse.json(res.rows[0]);
     }
 

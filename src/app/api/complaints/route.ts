@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
   try {
     const data = await req.json();
-    const { building, floor, area_id, complaint_type_id, details } = data;
+    const { date,building, floor, area_id, complaint_type_id, details } = data;
     const user_id = session.user.id;
 
     if (!building || !floor || !area_id || !complaint_type_id || !details) {
@@ -49,11 +49,11 @@ export async function POST(req: Request) {
     }
 
     const query = `
-      INSERT INTO complaints (user_id, building, floor, area_id, complaint_type_id, details, status) 
-      VALUES ($1, $2, $3, $4, $5, $6, 'In-Progress') RETURNING *;
+      INSERT INTO complaints (user_id, building, floor, area_id, complaint_type_id, details, status,date) 
+      VALUES ($1, $2, $3, $4, $5, $6, 'In-Progress', $7) RETURNING *;
     `;
 
-    const values = [user_id, building, floor, area_id, complaint_type_id, details];
+    const values = [user_id, building, floor, area_id, complaint_type_id, details, date];
     const res = await pool.query(query, values);
 
     return NextResponse.json(res.rows[0]);

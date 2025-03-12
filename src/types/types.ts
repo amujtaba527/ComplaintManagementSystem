@@ -19,6 +19,7 @@ export interface Complaint {
   details: string;
   status: "In-Progress" | "Resolved";
   created_at: string;
+  action: string | null;
   resolution_date: string | null; 
 }
 

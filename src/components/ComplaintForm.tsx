@@ -2,10 +2,23 @@
 import { Area, ComplaintType } from "@/types/types";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+function getTodayDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const day = today.getDate();
+  return new Date(year, month, day);
+}
 
 export default function ComplaintForm() {
   const { data: session } = useSession();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(getTodayDate());
+  
   const [formData, setFormData] = useState({
+    date: getTodayDate().toLocaleDateString('en-CA'),
     user_id: "",
     building: "",
     floor: "",
@@ -69,6 +82,19 @@ export default function ComplaintForm() {
     }
   };
 
+  const handleDateChange = (date: Date | null) => {
+    if (date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      setFormData(prev => ({ ...prev, date: formattedDate }));
+      setSelectedDate(date);
+    } else {
+      setFormData(prev => ({ ...prev, date: '' }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -88,6 +114,7 @@ export default function ComplaintForm() {
     if (response.ok) {
       alert("Complaint Submitted!");
       setFormData({
+        date: getTodayDate().toLocaleDateString('en-CA'),
         user_id: session.user.id,
         building: "",
         floor: "",
@@ -112,11 +139,19 @@ export default function ComplaintForm() {
       alert("Error submitting complaint: " + result.error);
     }
   };
-  
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-4 shadow rounded">
       <h3 className="text-lg text-black font-bold mb-2">Submit Complaint</h3>
+      {/*Date Selection*/}
+      <label className="text-black block">Date:</label>
+      <DatePicker
+        selected={selectedDate}
+        onChange={handleDateChange}
+        dateFormat="yyyy-MM-dd"
+        className="border p-1 rounded text-black text-bold w-full mb-2"
+        placeholderText="Select date"
+      />
 
       {/* Building Selection */}
       <label className="text-black block">Building:</label>
@@ -131,10 +166,10 @@ export default function ComplaintForm() {
       <label className="text-black block">Floor:</label>
       <select name="floor" onChange={handleChange} className="w-full p-2 mb-2 border text-black">
         <option value="">Select Floor</option>
-        <option value="Basement">Basement</option>
-        <option value="Ground">Ground</option>
-        <option value="1st">1st</option>
-        <option value="2nd">2nd</option>
+        <option value="Basement Floor">Basement Floor</option>
+        <option value="Ground Floor">Ground Floor</option>
+        <option value="1st Floor">1st Floor</option>
+        <option value="2nd Floor">2nd Floor</option>
       </select>
 
       {/* Complaint Area Selection */}

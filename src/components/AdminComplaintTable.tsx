@@ -8,6 +8,7 @@ export default function AdminComplaintTable() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [complaintToResolve, setComplaintToResolve] = useState<number | null>(null);
+  const [actionTaken, setActionTaken] = useState<string>("");
 
   useEffect(() => {
     fetch("/api/complaints")
@@ -16,12 +17,12 @@ export default function AdminComplaintTable() {
   }, []);
 
   const markAsResolved = async (id: number) => {
-    if (!selectedDate) return;
+    if (!selectedDate || !actionTaken) return;
 
     try {
       const response = await fetch(`/api/complaints/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ completion_date: selectedDate.toISOString() }),
+        body: JSON.stringify({ resolution_date: selectedDate.toISOString(), action: actionTaken }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -31,11 +32,12 @@ export default function AdminComplaintTable() {
 
       // Refresh complaints list
       setComplaints((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, status: "Resolved" } : c))
+        prev.map((c) => (c.id === id ? { ...c, status: "Resolved", action: actionTaken } : c))
       );
       
-      // Reset the date picker and selected complaint
+      // Reset the date picker, action input, and selected complaint
       setSelectedDate(null);
+      setActionTaken("");
       setComplaintToResolve(null);
     } catch (error) {
       alert('Failed to mark complaint as resolved' + error);
@@ -78,12 +80,19 @@ export default function AdminComplaintTable() {
                             selected={selectedDate}
                             onChange={(date: Date | null) => setSelectedDate(date)}
                             dateFormat="yyyy-MM-dd"
-                            className="border p-1 rounded"
+                            className="border p-1 rounded text-black"
                             placeholderText="Select date"
+                          />
+                          <input
+                            type="text"
+                            value={actionTaken}
+                            onChange={(e) => setActionTaken(e.target.value)}
+                            placeholder="Action taken"
+                            className="border p-1 rounded text-black"
                           />
                           <button
                             onClick={() => markAsResolved(complaint.id)}
-                            disabled={!selectedDate}
+                            disabled={!selectedDate || !actionTaken}
                             className="bg-green-500 text-white p-1 rounded disabled:bg-gray-400"
                           >
                             Confirm
@@ -92,6 +101,7 @@ export default function AdminComplaintTable() {
                             onClick={() => {
                               setComplaintToResolve(null);
                               setSelectedDate(null);
+                              setActionTaken("");
                             }}
                             className="bg-red-500 text-white p-1 rounded"
                           >
@@ -154,13 +164,20 @@ export default function AdminComplaintTable() {
                       selected={selectedDate}
                       onChange={(date: Date | null) => setSelectedDate(date)}
                       dateFormat="yyyy-MM-dd"
-                      className="border p-2 rounded w-full"
+                      className="border p-2 rounded w-full text-black"
                       placeholderText="Select date"
+                    />
+                    <input
+                      type="text"
+                      value={actionTaken}
+                      onChange={(e) => setActionTaken(e.target.value)}
+                      placeholder="Action taken"
+                      className="border p-2 rounded w-full text-black"
                     />
                     <div className="flex gap-2">
                       <button
                         onClick={() => markAsResolved(complaint.id)}
-                        disabled={!selectedDate}
+                        disabled={!selectedDate || !actionTaken}
                         className="flex-1 bg-green-500 text-white py-2 px-4 rounded disabled:bg-gray-400"
                       >
                         Confirm
@@ -169,6 +186,7 @@ export default function AdminComplaintTable() {
                         onClick={() => {
                           setComplaintToResolve(null);
                           setSelectedDate(null);
+                          setActionTaken("");
                         }}
                         className="flex-1 bg-red-500 text-white py-2 px-4 rounded"
                       >

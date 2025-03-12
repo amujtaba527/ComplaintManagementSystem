@@ -27,11 +27,11 @@ export default function Navbar() {
           <ul className="space-y-2">
             <li>
               <Link
-                href="/dashboard"
+                href="/complaintentry"
                 className="block p-2 hover:bg-gray-700 rounded transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Dashboard
+                Complaint Entry
               </Link>
             </li>
             {session?.user.role === "admin" && (

@@ -31,8 +31,12 @@ CREATE TABLE IF NOT EXISTS complaints (
     complaint_type_id INT NOT NULL,
     details TEXT NOT NULL,
     status VARCHAR(50),
+    action TEXT NULL,
     resolution_date TIMESTAMP NULL,  
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (area_id) REFERENCES areas(id) ON DELETE CASCADE,
-    FOREIGN KEY (complaint_type_id) REFERENCES complaint_types(id) ON DELETE CASCADE
+    CREATE INDEX idx_complaints_status ON complaints(status);
+    CREATE INDEX idx_complaints_area ON complaints(area_id);
+    CREATE INDEX idx_complaints_type ON complaints(complaint_type_id);
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (area_id) REFERENCES areas(id) ON DELETE SET NULL,
+    FOREIGN KEY (complaint_type_id) REFERENCES complaint_types(id) ON DELETE SET NULL 
 );
