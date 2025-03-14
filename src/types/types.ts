@@ -10,11 +10,14 @@ export interface User {
 }
 
 export interface Complaint {
+  date : string;
   id: number;
   user_id: number;
   building: string; 
   floor: string; 
+  area_id?: number ;
   area_name: string; 
+  complaint_type_id?: number ;
   complaint_type_name: string; 
   details: string;
   status: "In-Progress" | "Resolved";

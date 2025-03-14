@@ -34,24 +34,51 @@ export default function Navbar() {
                 Complaint Entry
               </Link>
             </li>
+            <li>
+              <Link
+                href="/reports"
+                className="block p-2 hover:bg-gray-700 rounded transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Reports
+              </Link>
+            </li>
             {session?.user.role === "admin" && (
               <>
                 <li>
                   <Link
-                    href="/admin"
+                    href="/manageuser"
                     className="block p-2 hover:bg-gray-700 rounded transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
-                    Admin Panel
+                    Manage Users
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/admin/complaints"
+                      href="/managecomplainttype"
+                      className="block p-2 hover:bg-gray-700 rounded transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Manage Complaint Types
+                    </Link>
+                </li>
+                <li>
+                  <Link
+                      href="/manageareas"
+                      className="block p-2 hover:bg-gray-700 rounded transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Manage Complaint Areas
+                    </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/complaintsaction"
                     className="block p-2 hover:bg-gray-700 rounded transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
-                    Complaints
+                    Complaints Actions
                   </Link>
                 </li>
               </>

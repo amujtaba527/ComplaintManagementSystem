@@ -85,6 +85,7 @@ export default function ComplaintTable() {
         <table className="w-full border hidden md:table">
           <thead>
             <tr className="bg-gray-200">
+              <th className="border text-black p-2">Date</th>
               <th className="border text-black p-2">Building</th>
               <th className="border text-black p-2">Floor</th>
               <th className="border text-black p-2">Area</th>
@@ -97,6 +98,7 @@ export default function ComplaintTable() {
           <tbody>
             {complaints.map((complaint) => (
               <tr key={complaint.id} className="border">
+                <td className="border text-black p-2">{new Date(complaint.date).toDateString()}</td>
                 <td className="border text-black p-2">{complaint.building}</td>
                 <td className="border text-black p-2">{complaint.floor}</td>
                 <td className="border text-black p-2">{complaint.area_name}</td>
@@ -113,7 +115,7 @@ export default function ComplaintTable() {
                     complaint.details
                   )}
                 </td>
-                <td className="border text-black p-2">{complaint.status}</td>
+                <td className={`border text-black p-2 ${complaint.status === "Resolved" ? "bg-green-200" : "bg-red-200"}`}>{complaint.status}</td>
                 <td className="border text-black p-2">
                   {editingComplaint?.id === complaint.id ? (
                     <div className="flex gap-2">
@@ -144,12 +146,14 @@ export default function ComplaintTable() {
                       >
                         Edit
                       </button>
-                      <button
-                        onClick={() => handleDelete(complaint.id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded text-sm"
-                      >
-                        Delete
-                      </button>
+                      {session?.user.role == "admin" && 
+                        (<button
+                          onClick={() => handleDelete(complaint.id)}
+                          className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+                          >
+                          Delete
+                        </button>
+                        )}
                     </div>
                   )}
                 </td>
@@ -163,6 +167,10 @@ export default function ComplaintTable() {
           {complaints.map((complaint) => (
             <div key={complaint.id} className="border text-black rounded-lg p-4 bg-gray-50">
               <div className="grid grid-cols-2 gap-2 mb-3">
+                <div>
+                  <p className="font-semibold text-sm text-black">Date</p>
+                  <p>{new Date(complaint.date).toDateString()}</p>
+                </div>
                 <div>
                   <p className="font-semibold text-sm text-black">Building</p>
                   <p>{complaint.building}</p>
@@ -230,12 +238,15 @@ export default function ComplaintTable() {
                     >
                       Edit
                     </button>
-                    <button
-                      onClick={() => handleDelete(complaint.id)}
-                      className="bg-red-500 text-white px-3 py-1.5 rounded text-sm"
-                    >
-                      Delete
-                    </button>
+                    {/* Only visible to admins */}
+                    {session?.user?.role === 'admin' && (
+                      <button
+                        onClick={() => handleDelete(complaint.id)}
+                        className="bg-red-500 text-white px-3 py-1.5 rounded text-sm"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </>
                 )}
               </div>

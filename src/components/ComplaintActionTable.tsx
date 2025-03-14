@@ -4,7 +4,7 @@ import { Complaint } from "@/types/types";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-export default function AdminComplaintTable() {
+export default function ComplaintActionTable() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [complaintToResolve, setComplaintToResolve] = useState<number | null>(null);
@@ -53,6 +53,7 @@ export default function AdminComplaintTable() {
         <table className="w-full border">
           <thead>
             <tr className="bg-gray-200">
+              <th className="border p-2 text-black">Date</th>
               <th className="border p-2 text-black">Building</th>
               <th className="border p-2 text-black">Floor</th>
               <th className="border p-2 text-black">Area</th>
@@ -63,8 +64,9 @@ export default function AdminComplaintTable() {
             </tr>
           </thead>
           <tbody>
-            {complaints.map((complaint: Complaint) => (
+            {complaints.filter((complaint) => complaint.status !== "Resolved").map((complaint: Complaint) => (
               <tr key={complaint.id} className="border">
+                <td className="border p-2 text-black">{new Date(complaint.date).toDateString()}</td>
                 <td className="border p-2 text-black">{complaint.building}</td>
                 <td className="border p-2 text-black">{complaint.floor}</td>
                 <td className="border p-2 text-black">{complaint.area_name}</td>
@@ -127,7 +129,7 @@ export default function AdminComplaintTable() {
 
       {/* Card view for small screens */}
       <div className="md:hidden space-y-4">
-        {complaints.map((complaint: Complaint) => (
+        {complaints.filter((complaint) => complaint.status !== "Resolved").map((complaint: Complaint) => (
           <div key={complaint.id} className="border rounded-lg p-4 bg-gray-50">
             <div className="grid grid-cols-2 gap-2">
               <div>

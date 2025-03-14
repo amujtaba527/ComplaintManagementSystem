@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Building, Floor } from "@/utils/constants";
 
 function getTodayDate() {
   const today = new Date();
@@ -16,6 +17,10 @@ function getTodayDate() {
 export default function ComplaintForm() {
   const { data: session } = useSession();
   const [selectedDate, setSelectedDate] = useState<Date | null>(getTodayDate());
+  const [areas, setAreas] = useState<Area[]>([]); 
+  const [complaintTypes, setComplaintTypes] = useState<ComplaintType[]>([]);  
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   
   const [formData, setFormData] = useState({
     date: getTodayDate().toLocaleDateString('en-CA'),
@@ -36,35 +41,36 @@ export default function ComplaintForm() {
     }
   }, [session]);
 
-  const [areas, setAreas] = useState<Area[]>([]); // Stores complaint areas from API
-  const [complaintTypes, setComplaintTypes] = useState<ComplaintType[]>([]); // Stores complaint types from API
+  async function fetchData() {
+    try {
+      const areasRes = await fetch("/api/areas");
+      const areasData = await areasRes.json();
+      const formattedAreas = areasData.map((area: Area) => ({
+        id: area.id,
+        area_name: area.area_name
+      }));
+      setAreas(formattedAreas);
 
-  // Fetch Areas and Complaint Types from API (Assuming API exists)
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const areasRes = await fetch("/api/areas");
-        const areasData = await areasRes.json();
-        const formattedAreas = areasData.map((area: Area) => ({
-          id: area.id,
-          area_name: area.area_name
-        }));
-        setAreas(formattedAreas);
-
-        const typesRes = await fetch("/api/complaint-types");
-        const typesData = await typesRes.json();
-        const formattedTypes = typesData.map((type: ComplaintType) => ({
-          id: type.id,
-          type_name: type.type_name
-        }));
-        setComplaintTypes(formattedTypes);
-      } catch (error) {
-        alert('Error fetching complaint types' + error);
-      }
+      const typesRes = await fetch("/api/complaint-types");
+      const typesData = await typesRes.json();
+      const formattedTypes = typesData.map((type: ComplaintType) => ({
+        id: type.id,
+        type_name: type.type_name
+      }));
+      setComplaintTypes(formattedTypes);
+    } catch (error) {
+      alert('Error fetching complaint types' + error);
     }
+  }
 
+  useEffect(() => {
     fetchData();
   }, []);
+  useEffect(() => {
+    const storedDetails = JSON.parse(localStorage.getItem("complaintDetails") || "[]");
+    setSuggestions(storedDetails);
+  }, []);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -77,9 +83,24 @@ export default function ComplaintForm() {
       const selectedType = complaintTypes.find(type => type.type_name === value);
       setFormData(prev => ({ ...prev, complaint_type_id: selectedType?.id.toString() || '' }));
     }
-    else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+    else if (name === "details") {
+      if (value.length > 0) {
+        const filteredSuggestions = suggestions.filter((item) =>
+          item.toLowerCase().includes(value.toLowerCase())
+        );
+        setSuggestions(filteredSuggestions);
+        setShowDropdown(filteredSuggestions.length > 0);
+      } else {
+        setShowDropdown(false);
+      }
+    }else{
+      setFormData((prev) => ({ ...prev, details: value }));
     }
+  };
+
+  const handleSelectSuggestion = (value: string) => {
+    setFormData((prev) => ({ ...prev, details: value }));
+    setShowDropdown(false);
   };
 
   const handleDateChange = (date: Date | null) => {
@@ -133,6 +154,12 @@ export default function ComplaintForm() {
         textarea.value = '';
       }
 
+      if (!suggestions.includes(formData.details)) {
+        const updatedSuggestions = [...suggestions, formData.details];
+        localStorage.setItem("complaintDetails", JSON.stringify(updatedSuggestions));
+        setSuggestions(updatedSuggestions);
+      }
+
       // Dispatch event to refresh complaints table
       window.dispatchEvent(new Event('newComplaint'));
     } else {
@@ -148,7 +175,7 @@ export default function ComplaintForm() {
       <DatePicker
         selected={selectedDate}
         onChange={handleDateChange}
-        dateFormat="yyyy-MM-dd"
+        dateFormat="dd-MM-yyyy"
         className="border p-1 rounded text-black text-bold w-full mb-2"
         placeholderText="Select date"
       />
@@ -157,19 +184,18 @@ export default function ComplaintForm() {
       <label className="text-black block">Building:</label>
       <select name="building" onChange={handleChange} className="w-full p-2 mb-2 border text-black">
         <option value="">Select Building</option>
-        <option value="Building 1">Building 1</option>
-        <option value="Building 2">Building 2</option>
-        <option value="Building 3">Building 3</option>
+        {Building.map(building => (
+          <option key={building.id} value={building.name}>{building.name}</option>
+        ))}
       </select>
 
       {/* Floor Selection */}
       <label className="text-black block">Floor:</label>
       <select name="floor" onChange={handleChange} className="w-full p-2 mb-2 border text-black">
         <option value="">Select Floor</option>
-        <option value="Basement Floor">Basement Floor</option>
-        <option value="Ground Floor">Ground Floor</option>
-        <option value="1st Floor">1st Floor</option>
-        <option value="2nd Floor">2nd Floor</option>
+          {Floor.map(floor => (
+            <option key={floor.id} value={floor.id}>{floor.name}</option>
+          ))} 
       </select>
 
       {/* Complaint Area Selection */}
@@ -196,7 +222,26 @@ export default function ComplaintForm() {
 
       {/* Complaint Details */}
       <label className="text-black block">Complaint Details:</label>
-      <textarea name="details" onChange={handleChange} className="w-full p-2 mb-2 border text-black"></textarea>
+      <textarea
+        name="details"
+        value={formData.details}
+        onChange={handleChange}
+        className="w-full p-2 mb-2 border text-black"
+        placeholder="Describe your complaint"
+      />
+      {showDropdown && (
+        <div className="border p-2 bg-white absolute w-full max-h-32 overflow-y-auto">
+          {suggestions.map((item, index) => (
+            <div
+              key={index}
+              className="p-1 hover:bg-gray-200 cursor-pointer"
+              onClick={() => handleSelectSuggestion(item)}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      )}
 
       <button type="submit" className="bg-blue-500 text-white p-2 rounded">
         Submit

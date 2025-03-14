@@ -11,13 +11,19 @@ CREATE TABLE IF NOT EXISTS users (
 -- Create Complaint Types Table (Managed by Admin)
 CREATE TABLE IF NOT EXISTS complaint_types (
     id SERIAL PRIMARY KEY,
-    type_name VARCHAR(255) UNIQUE NOT NULL
+    type_name VARCHAR(255) NOT NULL
+);
+
+-- Create Complaint Detail Table (Managed by Admin)
+CREATE TABLE IF NOT EXISTS complaint_deatil (
+    id SERIAL PRIMARY KEY,
+    detail TEXT NOT NULL
 );
 
 -- Create Areas Table (Managed by Admin)
 CREATE TABLE IF NOT EXISTS areas (
     id SERIAL PRIMARY KEY,
-    area_name VARCHAR(255) UNIQUE NOT NULL
+    area_name VARCHAR(255) NOT NULL
 );
 
 -- Create Complaints Table
@@ -32,10 +38,7 @@ CREATE TABLE IF NOT EXISTS complaints (
     details TEXT NOT NULL,
     status VARCHAR(50),
     action TEXT NULL,
-    resolution_date TIMESTAMP NULL,  
-    CREATE INDEX idx_complaints_status ON complaints(status);
-    CREATE INDEX idx_complaints_area ON complaints(area_id);
-    CREATE INDEX idx_complaints_type ON complaints(complaint_type_id);
+    resolution_date TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (area_id) REFERENCES areas(id) ON DELETE SET NULL,
     FOREIGN KEY (complaint_type_id) REFERENCES complaint_types(id) ON DELETE SET NULL 

@@ -13,7 +13,7 @@ export default function HomePage() {
       router.push("/login");
     }else if (status === "authenticated") {
       if (session?.user?.role === "admin") {
-        router.push("/admin");
+        router.push("/manageuser");
       } else if (session?.user?.role === "employee") {
         router.push("/complaintentry");
       }
