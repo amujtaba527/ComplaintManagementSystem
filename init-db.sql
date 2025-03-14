@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS complaint_types (
 );
 
 -- Create Complaint Detail Table (Managed by Admin)
-CREATE TABLE IF NOT EXISTS complaint_deatil (
+CREATE TABLE IF NOT EXISTS complaint_detail (
     id SERIAL PRIMARY KEY,
     detail TEXT NOT NULL
 );
