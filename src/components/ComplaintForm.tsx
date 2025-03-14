@@ -74,16 +74,16 @@ export default function ComplaintForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
+  
     if (name === 'area') {
       const selectedArea = areas.find(area => area.area_name === value);
       setFormData(prev => ({ ...prev, area_id: selectedArea?.id.toString() || '' }));
-    }
-    else if (name === 'complaintType') {
+    } else if (name === 'complaintType') {
       const selectedType = complaintTypes.find(type => type.type_name === value);
       setFormData(prev => ({ ...prev, complaint_type_id: selectedType?.id.toString() || '' }));
-    }
-    else if (name === "details") {
+    } else if (name === 'floor') {
+      setFormData(prev => ({ ...prev, floor: value }));
+    } else if (name === 'details') {
       if (value.length > 0) {
         const filteredSuggestions = suggestions.filter((item) =>
           item.toLowerCase().includes(value.toLowerCase())
@@ -93,8 +93,9 @@ export default function ComplaintForm() {
       } else {
         setShowDropdown(false);
       }
-    }else{
-      setFormData((prev) => ({ ...prev, details: value }));
+      setFormData(prev => ({ ...prev, details: value }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -234,7 +235,7 @@ export default function ComplaintForm() {
           {suggestions.map((item, index) => (
             <div
               key={index}
-              className="p-1 hover:bg-gray-200 cursor-pointer"
+              className="p-1 hover:bg-gray-200 text-black cursor-pointer"
               onClick={() => handleSelectSuggestion(item)}
             >
               {item}
