@@ -6,10 +6,14 @@ import { authOptions } from "@/lib/auth";
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    console.log("Session:",session);
+    console.log("USER ROLE:",session?.user?.role);
+    if (!session || !["admin", "manager", "it_manager"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
     const {id} = await params;
     const body = await req.json();
-    if (session.user.role === "admin" && body.resolution_date && body.action) {
+    if ( body.resolution_date && body.action) {
       const res = await pool.query(
         `UPDATE complaints 
          SET resolution_date = $1, 
@@ -39,11 +43,23 @@ export async function PUT(
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
-    const { id } =  await params;
-    const { details } = await req.json();
+    const { id } = await params;
+    const data = await req.json();
+    const { date, building, floor, area_id, complaint_type_id, details } = data;
 
-    const query = "UPDATE complaints SET details = $1 WHERE id = $2 AND user_id = $3 RETURNING *";
-    const res = await pool.query(query, [details, id, session.user.id]);
+    const query = `
+      UPDATE complaints 
+      SET date = $1, 
+          building = $2, 
+          floor = $3, 
+          area_id = $4, 
+          complaint_type_id = $5, 
+          details = $6 
+      WHERE id = $7 AND user_id = $8 
+      RETURNING *
+    `;
+    
+    const res = await pool.query(query, [date,building,floor,area_id,complaint_type_id,details,id,session.user.id]);
 
     if (res.rowCount === 0) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });

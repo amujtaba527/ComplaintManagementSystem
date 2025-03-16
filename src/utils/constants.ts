@@ -42,3 +42,27 @@ export const Status = [
         name: "Resolved"
     }
 ]
+
+export const UserRole = [
+    {
+        id: "admin",
+        name: "Admin"
+    },
+    {
+        id: "employee",
+        name: "Employee"
+    },
+    {
+        id: "owner",
+        name: "Owner"
+    },
+    {
+        id: "manager",
+        name: "Manager"
+    },
+    {
+        id: "it_manager",
+        name: "IT Department"
+    }
+]
+export const VALID_ROLES = UserRole.map(role => role.id);

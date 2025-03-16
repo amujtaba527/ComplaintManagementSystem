@@ -1,19 +1,28 @@
 "use client";
+import { UserRole } from "@/utils/constants";
 import { useEffect, useState } from "react";
+import { User, UserRoleType } from "@/types/types";
 
-interface User {
-  id: number;
+interface NewUserForm {
   name: string;
   email: string;
-  password?: string;
-  role: string;
+  password: string;
+  role: UserRoleType;
 }
 
 export default function ManageUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "employee" });
+  const [newUser, setNewUser] = useState<NewUserForm>({
+    name: "",
+    email: "",
+    password: "",
+    role: "employee"
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   useEffect(() => {
     fetch("/api/users")
@@ -32,19 +41,65 @@ export default function ManageUsers() {
       });
   }, []);
 
-  const updateUserRole = async (id: number, newRole: string) => {
+  const handleEditClick = (user: User) => {
+    setIsEditing(true);
+    setEditingId(user.id);
+    // Set the user data in the add user form
+    setNewUser({
+      name: user.name,
+      email: user.email,
+      password: "", // Clear password field since it's hashed
+      role: user.role
+    });
+    // Scroll to the form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditingId(null);
+    // Reset the form
+    setNewUser({
+      name: "",
+      email: "",
+      password: "",
+      role: "employee"
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isEditing) {
+      await updateUser(editingId!, newUser);
+    } else {
+      await addUser();
+    }
+  };
+
+  const updateUser = async (id: number, updatedData: NewUserForm) => {
+    // Only include fields that are present
+    const dataToUpdate = {
+      name: updatedData.name,
+      email: updatedData.email,
+      role: updatedData.role,
+      ...(updatedData.password ? { password: updatedData.password } : {})
+    };
+
     const res = await fetch(`/api/users/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role: newRole }),
+      body: JSON.stringify(dataToUpdate),
     });
 
     if (res.ok) {
+      const updatedUser = await res.json();
       setUsers((prev) =>
-        prev.map((user) => (user.id === id ? { ...user, role: newRole } : user))
+        prev.map((user) => (user.id === id ? { ...updatedUser } : user))
       );
+      handleCancelEdit(); 
     } else {
-      alert("Failed to update role");
+      const errorData = await res.json();
+      alert(`Failed to update user: ${errorData.error || 'Unknown error'}`);
     }
   };
 
@@ -61,8 +116,8 @@ export default function ManageUsers() {
   };
   
   const addUser = async () => {
-    if (!newUser.name || !newUser.email) {
-      alert("Name and email are required");
+    if (!newUser.name || !newUser.email || !newUser.password) {
+      alert("Name, email and password are required");
       return;
     }
 
@@ -74,8 +129,8 @@ export default function ManageUsers() {
 
     if (res.ok) {
       const addedUser = await res.json();
-      setUsers((prev) => [...prev, addedUser]);
-      setNewUser({ name: "", email: "", password: "", role: "employee"});
+      setUsers((prev) => [...prev, { ...addedUser, }]);
+      setNewUser({ name: "", email: "", password: "", role: "employee" });
     } else {
       alert("Failed to add user");
     }
@@ -83,122 +138,281 @@ export default function ManageUsers() {
 
   return (
     <div className="p-4 sm:p-6 bg-white shadow-md rounded-md">
-      <h2 className="text-xl text-black font-semibold mb-4">Manage Users</h2>
+      {loading ? (
+        <div className="text-center py-4">Loading users...</div>
+      ) : error ? (
+        <div className="text-red-500 text-center py-4">{error}</div>
+      ) : (
+        <>
+          <h2 className="text-xl text-black font-semibold mb-4">
+            {isEditing ? 'Edit User' : 'Add New User'}
+          </h2>
 
-      {/* Add User Form */}
-      <div className="mb-6">
-        <h3 className="text-lg text-black font-medium mb-2">Add New User</h3>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
-          <input
-            type="text"
-            placeholder="Name"
-            value={newUser.name}
-            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-            className="border text-black border-gray-300 rounded-md p-2 w-full"
-          />
-          <input
-            type="email"
-            placeholder="Username"
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-            className="border text-black border-gray-300 rounded-md p-2 w-full"
-          />
-          <input
-            type="text"
-            placeholder="Password"
-            value={newUser.password}
-            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-            className="border text-black border-gray-300 rounded-md p-2 w-full"
-          />
-          <select
-            value={newUser.role}
-            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-            className="border text-black border-gray-300 rounded-md p-2 w-full"
-          >
-            <option value="employee">Employee</option>
-            <option value="admin">Admin</option>
-          </select>
-          <button
-            onClick={addUser}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 w-full"
-          >
-            Add User
-          </button>
-        </div>
-      </div>
-
-      {/* User List */}
-      {loading && <p className="text-gray-800">Loading users...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      
-      {/* Table view for medium and larger screens */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border text-black border-gray-300 px-4 py-2">Name</th>
-              <th className="border text-black border-gray-300 px-4 py-2">Username</th>
-              <th className="border text-black border-gray-300 px-4 py-2">Role</th>
-              <th className="border text-black border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="text-center">
-                <td className="border text-black border-gray-300 px-4 py-2">{user.name}</td>
-                <td className="border text-black border-gray-300 px-4 py-2">{user.email}</td>
-                <td className="border text-black border-gray-300 px-4 py-2">
-                  <select
-                    className="border text-black border-gray-300 rounded-md p-1 w-auto"
-                    value={user.role}
-                    onChange={(e) => updateUserRole(user.id, e.target.value)}
-                  >
-                    <option value="employee">Employee</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </td>
-                <td className="border text-black border-gray-300 px-4 py-2">
-                  <button
-                    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                    onClick={() => deleteUser(user.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Card view for mobile */}
-      <div className="md:hidden space-y-4">
-        {users.map((user) => (
-          <div key={user.id} className="border text-black border-gray-300 rounded-lg p-4 space-y-3">
-            <div className="flex justify-between items-center">
-              <h3 className="font-medium text-black">{user.name}</h3>
-              <button
-                className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                onClick={() => deleteUser(user.id)}
-              >
-                Delete
-              </button>
-            </div>
-            <div className="text-black">{user.email}</div>
-            <div className="flex items-center space-x-2">
-              <span className="text-black">Role:</span>
+          {/* Add/Edit User Form */}
+          <form onSubmit={handleSubmit} className="mb-6">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
+              <input
+                type="text"
+                placeholder="Name"
+                value={newUser.name}
+                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                className="border text-black border-gray-300 rounded-md p-2"
+              />
+              <input
+                type="text"
+                placeholder="Email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                className="border text-black border-gray-300 rounded-md p-2"
+              />
+              <input
+                type="password"
+                placeholder={isEditing ? "New Password (optional)" : "Password"}
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                className="border text-black border-gray-300 rounded-md p-2"
+              />
               <select
-                className="border text-black border-gray-300 rounded-md p-1 flex-grow"
-                value={user.role}
-                onChange={(e) => updateUserRole(user.id, e.target.value)}
+                value={newUser.role}
+                onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRoleType })}
+                className="border text-black border-gray-300 rounded-md p-2"
               >
-                <option value="employee">Employee</option>
-                <option value="admin">Admin</option>
+                {UserRole.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
               </select>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                >
+                  {isEditing ? 'Update User' : 'Add User'}
+                </button>
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </div>
+          </form>
+
+          {/* Users Table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full table-auto">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border text-black border-gray-300 px-4 py-2">Name</th>
+                  <th className="border text-black border-gray-300 px-4 py-2">Username</th>
+                  <th className="border text-black border-gray-300 px-4 py-2">Role</th>
+                  <th className="border text-black border-gray-300 px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id} className="text-center">
+                    <td className="border text-black border-gray-300 px-4 py-2">
+                      {editingUser?.id === user.id ? (
+                        <input
+                          type="text"
+                          value={editingUser.name}
+                          onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                          className="w-full border rounded px-2 py-1"
+                        />
+                      ) : (
+                        user.name
+                      )}
+                    </td>
+                    <td className="border text-black border-gray-300 px-4 py-2">
+                      {editingUser?.id === user.id ? (
+                        <input
+                          type="text"
+                          value={editingUser.email}
+                          onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                          className="w-full border rounded px-2 py-1"
+                        />
+                      ) : (
+                        user.email
+                      )}
+                    </td>
+                    
+                    <td className="border text-black border-gray-300 px-4 py-2">
+                      {editingUser?.id === user.id ? (
+                        <select
+                          className="border text-black border-gray-300 rounded-md p-1 w-auto"
+                          value={editingUser.role}
+                          onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value as UserRoleType })}
+                        >
+                          {UserRole.map((role) => (
+                            <option key={role.id} value={role.id}>
+                              {role.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        // Convert role to capitalized text
+                        user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                      )}
+                    </td>
+                    <td className="border text-black border-gray-300 px-4 py-2">
+                      <div className="flex gap-2 justify-center">
+                        {editingUser?.id === user.id ? (
+                          <>
+                            <button
+                              className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
+                              onClick={() => updateUser(user.id, {
+                                name: editingUser.name,
+                                email: editingUser.email,
+                                password: editingUser.password || "", // Provide empty string as fallback
+                                role: editingUser.role
+                              })}
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="bg-gray-500 text-white px-3 py-1 rounded-md hover:bg-gray-600"
+                              onClick={handleCancelEdit}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600"
+                              onClick={() => handleEditClick(user)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                              onClick={() => deleteUser(user.id)}
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        ))}
-      </div>
+
+          {/* Card view for mobile */}
+          <div className="md:hidden space-y-4">
+            {users.map((user) => (
+              <div key={user.id} className="border text-black border-gray-300 rounded-lg p-4 space-y-3">
+                {editingUser?.id === user.id ? (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Name</label>
+                      <input
+                        type="text"
+                        value={editingUser.name}
+                        onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                        className="w-full border rounded px-2 py-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Username</label>
+                      <input
+                        type="text"
+                        value={editingUser.email}
+                        onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                        className="w-full border rounded px-2 py-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Password</label>
+                      <input
+                        type="text"
+                        value={editingUser.password || ''}
+                        onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
+                        className="w-full border rounded px-2 py-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Role</label>
+                      <select
+                        className="w-full border rounded px-2 py-1"
+                        value={editingUser.role}
+                        onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value as UserRoleType })}
+                      >
+                        <option value="employee">Employee</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 flex-1"
+                        onClick={() => updateUser(user.id, {
+                          name: editingUser.name,
+                          email: editingUser.email,
+                          password: editingUser.password || "", // Provide empty string as fallback
+                          role: editingUser.role
+                        })}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="bg-gray-500 text-white px-3 py-1 rounded-md hover:bg-gray-600 flex-1"
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-medium text-black">{user.name}</h3>
+                      <div className="flex gap-2">
+                        <button
+                          className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600"
+                          onClick={() => handleEditClick(user)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                          onClick={() => deleteUser(user.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-black">Username: {user.email}</div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-black">Role:</span>
+                      <select
+                        className="border text-black border-gray-300 rounded-md p-1 flex-grow"
+                        value={user.role}
+                        onChange={(e) => updateUser(user.id, {
+                          name: user.name,
+                          email: user.email,
+                          password: "", // Add an empty password to trigger update
+                          role: e.target.value as UserRoleType
+                        })}
+                      >
+                        <option value="employee">Employee</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

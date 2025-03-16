@@ -3,7 +3,7 @@ import { pool } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import bcrypt from "bcryptjs";
-
+import { VALID_ROLES } from "@/utils/constants";
 
 export async function GET() {
   try {
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    if (!["admin", "employee"].includes(role)) {
+    if (!VALID_ROLES.includes(role)) {
       return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
 

@@ -2,10 +2,64 @@
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from 'next/navigation';
+
+interface NavLink {
+  href: string;
+  label: string;
+  roles: string[];
+}
 
 export default function Navbar() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  const navLinks: NavLink[] = [
+    {
+      href: "/complaintentry",
+      label: "Complaint Entry",
+      roles: ["employee", "admin"]
+    },
+    {
+      href: "/reports",
+      label: "Reports",
+      roles: ["owner", "admin"]
+    },
+    {
+      href: "/manageuser",
+      label: "Manage Users",
+      roles: ["admin"]
+    },
+    {
+      href: "/managecomplainttype",
+      label: "Manage Complaint Types",
+      roles: ["admin"]
+    },
+    {
+      href: "/manageareas",
+      label: "Manage Complaint Areas",
+      roles: ["admin"]
+    },
+    {
+      href: "/complaintsaction",
+      label: "Complaints Actions",
+      roles: ["admin", "manager", "it_manager"]
+    }
+  ];
+
+  const userRole = session?.user?.role;
+
+  // Filter links based on user role
+  const authorizedLinks = navLinks.filter(link => 
+    link.roles.includes(userRole as string)
+  );
+
+  // Get current page label
+  const getCurrentPageLabel = () => {
+    const currentLink = navLinks.find(link => link.href === pathname);
+    return currentLink ? ` | ${currentLink.label}` : '';
+  };
 
   return (
     <div className="flex">
@@ -25,64 +79,17 @@ export default function Navbar() {
         <div className="p-4">
           <h1 className="text-xl font-bold mb-8">CMS</h1>
           <ul className="space-y-2">
-            <li>
-              <Link
-                href="/complaintentry"
-                className="block p-2 hover:bg-gray-700 rounded transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                Complaint Entry
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/reports"
-                className="block p-2 hover:bg-gray-700 rounded transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                Reports
-              </Link>
-            </li>
-            {session?.user.role === "admin" && (
-              <>
-                <li>
-                  <Link
-                    href="/manageuser"
-                    className="block p-2 hover:bg-gray-700 rounded transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Manage Users
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                      href="/managecomplainttype"
-                      className="block p-2 hover:bg-gray-700 rounded transition-colors"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Manage Complaint Types
-                    </Link>
-                </li>
-                <li>
-                  <Link
-                      href="/manageareas"
-                      className="block p-2 hover:bg-gray-700 rounded transition-colors"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Manage Complaint Areas
-                    </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/complaintsaction"
-                    className="block p-2 hover:bg-gray-700 rounded transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Complaints Actions
-                  </Link>
-                </li>
-              </>
-            )}
+            {authorizedLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="block p-2 hover:bg-gray-700 rounded transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </aside>
@@ -121,7 +128,12 @@ export default function Navbar() {
                 )}
               </svg>
             </button>
-            <h1 className="text-xl font-bold">Complaint Management System</h1>
+            <h1 className="text-xl font-bold">
+              Brick School CMS
+              <span className="text-lg font-normal">
+                {getCurrentPageLabel()}
+              </span>
+            </h1>
           </div>
           <div className="flex items-center gap-4">
             {session?.user?.name && (

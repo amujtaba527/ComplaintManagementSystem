@@ -29,7 +29,7 @@ export async function GET() {
       query = `${baseQuery} WHERE c.user_id = $1 ORDER BY c.date DESC`;
       const res = await pool.query<Complaint>(query, [user_id]);
       return NextResponse.json(res.rows);
-    }
+    } 
   } catch (error) {
     return NextResponse.json({ error: "Error fetching complaints" + error }, { status: 500 });
   }

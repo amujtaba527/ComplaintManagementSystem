@@ -1,12 +1,12 @@
-export type UserRole = "admin" | "employee";
+export type UserRoleType = "admin" | "employee" | "owner" | "manager" | "it_manager";
 
 export interface User {
   id: number;
   name: string;
   email: string;
-  password: string; 
-  role: UserRole;
-  created_at: string;
+  password?: string; 
+  role: UserRoleType;
+  created_at?: string;
 }
 
 export interface Complaint {

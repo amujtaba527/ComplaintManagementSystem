@@ -1,27 +1,28 @@
 "use client";
-import { Area, ComplaintType } from "@/types/types";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Area, ComplaintType } from "@/types/types";
 import { Building, Floor } from "@/utils/constants";
 
 function getTodayDate() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const day = today.getDate();
-  return new Date(year, month, day);
+  return new Date();
 }
 
-export default function ComplaintForm() {
+interface ComplaintFormProps {
+  editingComplaint?: any | null;
+  setEditingComplaint?: (complaint: any | null) => void;
+}
+
+export default function ComplaintForm({ editingComplaint, setEditingComplaint }: ComplaintFormProps) {
   const { data: session } = useSession();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(getTodayDate());
-  const [areas, setAreas] = useState<Area[]>([]); 
-  const [complaintTypes, setComplaintTypes] = useState<ComplaintType[]>([]);  
+  const [selectedDate, setSelectedDate] = useState<Date>(getTodayDate());
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [complaintTypes, setComplaintTypes] = useState<ComplaintType[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     date: getTodayDate().toLocaleDateString('en-CA'),
     user_id: "",
@@ -32,6 +33,7 @@ export default function ComplaintForm() {
     details: "",
   });
 
+  // Set user_id when session is available
   useEffect(() => {
     if (session?.user?.id) {
       setFormData(prev => ({
@@ -41,36 +43,61 @@ export default function ComplaintForm() {
     }
   }, [session]);
 
-  async function fetchData() {
-    try {
-      const areasRes = await fetch("/api/areas");
-      const areasData = await areasRes.json();
-      const formattedAreas = areasData.map((area: Area) => ({
-        id: area.id,
-        area_name: area.area_name
-      }));
-      setAreas(formattedAreas);
-
-      const typesRes = await fetch("/api/complaint-types");
-      const typesData = await typesRes.json();
-      const formattedTypes = typesData.map((type: ComplaintType) => ({
-        id: type.id,
-        type_name: type.type_name
-      }));
-      setComplaintTypes(formattedTypes);
-    } catch (error) {
-      alert('Error fetching complaint types' + error);
-    }
-  }
-
+  // Fetch areas and complaint types
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch areas
+        const areasResponse = await fetch("/api/areas");
+        const areasData = await areasResponse.json();
+        setAreas(areasData);
+  
+        // Fetch complaint types
+        const typesResponse = await fetch("/api/complaint-types");
+        const typesData = await typesResponse.json();
+        setComplaintTypes(typesData);
+      } catch (error) {
+        alert('Error fetching data: ' + error);
+      }
+    };
     fetchData();
-  }, []);
-  useEffect(() => {
     const storedDetails = JSON.parse(localStorage.getItem("complaintDetails") || "[]");
     setSuggestions(storedDetails);
   }, []);
 
+  // Handle editing complaint
+  useEffect(() => {
+    if (editingComplaint) {
+      const date = new Date(editingComplaint.date);
+      setSelectedDate(date);
+      
+      // Find the area and complaint type objects
+      const selectedArea = areas.find(area => area.id === editingComplaint.area_id);
+      const selectedType = complaintTypes.find(type => type.id === editingComplaint.complaint_type_id);
+
+      setFormData({
+        date: date.toLocaleDateString('en-CA'),
+        user_id: editingComplaint.user_id?.toString() || "",
+        building: editingComplaint.building || "",
+        floor: editingComplaint.floor || "",
+        area_id: editingComplaint.area_id?.toString() || "",
+        complaint_type_id: editingComplaint.complaint_type_id?.toString() || "",
+        details: editingComplaint.details || "",
+      });
+
+      // Set the select elements' values
+      const selectElements = document.querySelectorAll('select');
+      selectElements.forEach(select => {
+        if (select.name === 'building') {
+          select.value = editingComplaint.building;
+        } else if (select.name === 'area') {
+          select.value = selectedArea?.area_name || '';
+        } else if (select.name === 'complaintType') {
+          select.value = selectedType?.type_name || '';
+        }
+      });
+    }
+  }, [editingComplaint, areas, complaintTypes]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -124,9 +151,15 @@ export default function ComplaintForm() {
       alert("Please login to submit a complaint");
       return;
     }
+
+    const url = editingComplaint 
+      ? `/api/complaints/${editingComplaint.id}`
+      : "/api/complaints";
+    
+    const method = editingComplaint ? "PUT" : "POST";
   
-    const response = await fetch("/api/complaints", {
-      method: "POST",
+    const response = await fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     });
@@ -134,7 +167,9 @@ export default function ComplaintForm() {
     const result = await response.json();
   
     if (response.ok) {
-      alert("Complaint Submitted!");
+      alert(editingComplaint ? "Complaint Updated!" : "Complaint Submitted!");
+      
+      // Reset form
       setFormData({
         date: getTodayDate().toLocaleDateString('en-CA'),
         user_id: session.user.id,
@@ -145,32 +180,30 @@ export default function ComplaintForm() {
         details: "",
       });
       
+      setSelectedDate(getTodayDate());
+      
+      // Reset select elements and textarea
       const selectElements = document.querySelectorAll<HTMLSelectElement>('select');
       selectElements.forEach(select => {
         select.value = '';
       });
       
-      const textarea = document.querySelector<HTMLTextAreaElement>('textarea');
-      if (textarea) {
-        textarea.value = '';
-      }
-
-      if (!suggestions.includes(formData.details)) {
-        const updatedSuggestions = [...suggestions, formData.details];
-        localStorage.setItem("complaintDetails", JSON.stringify(updatedSuggestions));
-        setSuggestions(updatedSuggestions);
+      if (editingComplaint && setEditingComplaint) {
+        setEditingComplaint(null);
       }
 
       // Dispatch event to refresh complaints table
       window.dispatchEvent(new Event('newComplaint'));
     } else {
-      alert("Error submitting complaint: " + result.error);
+      alert(`Error ${editingComplaint ? 'updating' : 'submitting'} complaint: ${result.error}`);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-4 shadow rounded">
-      <h3 className="text-lg text-black font-bold mb-2">Submit Complaint</h3>
+      <h3 className="text-lg text-black font-bold mb-2">
+        {editingComplaint ? 'Edit Complaint' : 'Submit Complaint'}
+      </h3>
       {/*Date Selection*/}
       <label className="text-black block">Date:</label>
       <DatePicker
@@ -244,9 +277,49 @@ export default function ComplaintForm() {
         </div>
       )}
 
-      <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-        Submit
-      </button>
+      <div className="flex gap-2">
+        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+          {editingComplaint ? 'Update' : 'Submit'}
+        </button>
+        {editingComplaint && setEditingComplaint && (
+          <button 
+            type="button" 
+            onClick={() => {
+              setEditingComplaint(null);
+              // Reset form data
+              setFormData({
+                date: getTodayDate().toLocaleDateString('en-CA'),
+                user_id: session?.user?.id || "",
+                building: "",
+                floor: "",
+                area_id: "",
+                complaint_type_id: "",
+                details: "",
+              });
+              // Reset date picker
+              setSelectedDate(getTodayDate());
+              
+              // Reset all select elements
+              const selectElements = document.querySelectorAll<HTMLSelectElement>('select');
+              selectElements.forEach(select => {
+                if (select.name === 'building') select.value = '';
+                if (select.name === 'floor') select.value = '';
+                if (select.name === 'area') select.value = '';
+                if (select.name === 'complaintType') select.value = '';
+              });
+              
+              // Reset textarea
+              const textarea = document.querySelector<HTMLTextAreaElement>('textarea[name="details"]');
+              if (textarea) {
+                textarea.value = '';
+              }
+            }}
+            className="bg-gray-500 text-white p-2 rounded"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   );
 }

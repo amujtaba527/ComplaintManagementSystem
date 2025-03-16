@@ -11,7 +11,7 @@ export default function ComplaintActionTable() {
   const [actionTaken, setActionTaken] = useState<string>("");
 
   useEffect(() => {
-    fetch("/api/complaints")
+    fetch("/api/complaintaction")
       .then((res) => res.json())
       .then((data) => setComplaints(data));
   }, []);

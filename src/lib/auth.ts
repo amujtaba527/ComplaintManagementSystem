@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { Pool } from "pg";
+import { UserRoleType } from "@/types/types";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -65,7 +66,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as number;
-        session.user.role = token.role as "admin" | "employee";
+        session.user.role = token.role as UserRoleType;
       }
       return session;
     },

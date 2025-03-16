@@ -1,36 +1,66 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function HomePage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }else if (status === "authenticated") {
-      if (session?.user?.role === "admin") {
-        router.push("/manageuser");
-      } else if (session?.user?.role === "employee") {
-        router.push("/complaintentry");
-      }
-    }
-  }, [session, status, router]);
+  const {status,data: session } = useSession();
 
   if (status === "loading") return <p className="text-center mt-10">Loading...</p>;
 
-  return (
-    <main className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Complaint Management System</h1>
+  if (status === "unauthenticated") {
+    return (
+      <div className="min-h-screen relative">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/banner.jpg"
+            alt="Background"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/50" /> {/* Dark overlay */}
+        </div>
+        <main className="relative z-10 max-w-4xl mx-auto p-6">
+          <h1 className="text-4xl font-bold mb-4 text-center text-white">
+            Complaint Management System
+          </h1>
+          <p className="text-xl text-center text-white">
+            Please <Link href="/login" className="text-blue-300 hover:text-blue-400 underline">log in</Link> to access the system.
+          </p>
+        </main>
+      </div>
+    );
+  }
 
-      {session ? (
-        <p className="text-center mt-6 text-lg">Redirecting to your dashboard...</p>
-      ) : (
-        <p className="text-red-500 text-center">Please log in to access the system.</p>
-      )}
+  return (
+    <div className="min-h-screen relative">
+    <div className="absolute inset-0">
+      <Image
+        src = "/images/banner.jpg"
+        alt="Background"
+        fill
+        className="object-cover"
+        priority
+      />
+      <div className="absolute inset-0 bg-black/40" /> {/* Dark overlay */}
+    </div>
+
+    <main className="relative z-10 max-w-4xl mx-auto p-6">
+      <div className="bg-white-50 rounded-lg shadow-xl p-8 backdrop-blur-sm">
+        <h1 className="text-3xl font-bold mb-4 text-center text-black">
+          Welcome to Complaint Management System
+        </h1>
+
+        <div className="mt-8 text-center">
+          <p className="mb-6 text-xl text-gray-900">
+            Welcome back, {session?.user?.name || 'User'}!
+          </p>
+
+        </div>
+      </div>
     </main>
+  </div>
   );
 }
