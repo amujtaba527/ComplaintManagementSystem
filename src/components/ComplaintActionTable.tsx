@@ -64,7 +64,7 @@ export default function ComplaintActionTable() {
             </tr>
           </thead>
           <tbody>
-            {complaints.filter((complaint) => complaint.status !== "Resolved").map((complaint: Complaint) => (
+            {complaints.filter((complaint) => complaint.status !== "Resolved" && complaint.complaint_type_name == "IT Issue").map((complaint: Complaint) => (
               <tr key={complaint.id} className="border">
                 <td className="border p-2 text-black">{new Date(complaint.date).toDateString()}</td>
                 <td className="border p-2 text-black">{complaint.building}</td>

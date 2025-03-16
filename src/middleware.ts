@@ -11,16 +11,34 @@ const roleAccess = {
   it_manager: ['/complaintsaction', '/api/complaint/action', '/api/complaints'],
 };
 
+// Paths that should be excluded from middleware
+const excludedPaths = [
+  '/api/auth',
+  '/_next',
+  '/images',
+  '/favicon.ico',
+  '/login',
+  '/'
+];
+
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const path = request.nextUrl.pathname;
+
+  // Check if the path should be excluded
+  if (excludedPaths.some(excludedPath => path.startsWith(excludedPath))) {
+    return NextResponse.next();
+  }
+
+  const token = await getToken({ 
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET 
+  });
   
   if (!token) {
-    // Redirect to login if not authenticated
-    return NextResponse.redirect(new URL('/auth/signin', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   const userRole = token.role as keyof typeof roleAccess;
-  const path = request.nextUrl.pathname;
 
   // Admin has access to everything
   if (userRole === 'admin') {
@@ -35,8 +53,7 @@ export async function middleware(request: NextRequest) {
   });
   
   if (!hasAccess) {
-    // Redirect to unauthorized page or home page
-    return NextResponse.redirect(new URL('/unauthorized', request.url));
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();
@@ -44,10 +61,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/complaints/:path*',
-    '/reports/:path*',
-    '/admin/:path*',
-    '/api/complaints/:path*',
-    '/api/reports/:path*',
+    // Match all paths except static files and api/auth routes
+    '/((?!api/auth|_next/static|_next/image|favicon.ico|images|public|login).*)',
   ],
 };

@@ -1,8 +1,9 @@
 "use client";
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 
 interface NavLink {
   href: string;
@@ -14,6 +15,7 @@ export default function Navbar() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const navLinks: NavLink[] = [
     {
@@ -59,6 +61,14 @@ export default function Navbar() {
   const getCurrentPageLabel = () => {
     const currentLink = navLinks.find(link => link.href === pathname);
     return currentLink ? ` | ${currentLink.label}` : '';
+  };
+
+  const handleLogout = async () => {
+    await signOut({
+      redirect: false,
+    });
+    router.push('/');
+    router.refresh();
   };
 
   return (
@@ -133,7 +143,7 @@ export default function Navbar() {
               <span className="text-lg font-normal">
                 {getCurrentPageLabel()}
               </span>
-            </h1>
+            </h1> 
           </div>
           <div className="flex items-center gap-4">
             {session?.user?.name && (
@@ -141,12 +151,13 @@ export default function Navbar() {
                 Welcome, {session.user.name}
               </span>
             )}
-            <button
-              onClick={() => signOut()}
-              className="bg-red-500 px-3 py-1 rounded hover:bg-red-600"
+            {session && (<button
+              onClick={handleLogout}
+              className="bg-red-500 px-3 py-1 rounded hover:bg-red-600 transition-colors"
             >
               Logout
             </button>
+          )}
           </div>
         </nav>
       </div>

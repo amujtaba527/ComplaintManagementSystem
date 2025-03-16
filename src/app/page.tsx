@@ -17,7 +17,7 @@ export default function HomePage() {
             src="/images/banner.jpg"
             alt="Background"
             fill
-            className="object-cover"
+            className="object-cover h-full w-full"
             priority
           />
           <div className="absolute inset-0 bg-black/50" /> {/* Dark overlay */}
@@ -36,16 +36,16 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative">
-    <div className="absolute inset-0">
-      <Image
-        src = "/images/banner.jpg"
-        alt="Background"
-        fill
-        className="object-cover"
-        priority
-      />
-      <div className="absolute inset-0 bg-black/40" /> {/* Dark overlay */}
-    </div>
+      <div className="absolute inset-0">
+        <Image
+          src = "/images/banner.jpg"
+          alt="Background"
+          fill
+          className="object-cover h-full w-full"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/40" /> {/* Dark overlay */}
+      </div>
 
     <main className="relative z-10 max-w-4xl mx-auto p-6">
       <div className="bg-white-50 rounded-lg shadow-xl p-8 backdrop-blur-sm">
