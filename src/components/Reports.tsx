@@ -1,7 +1,7 @@
 'use client';
 import { Complaint ,Area, ComplaintType} from '@/types/types';
 import { Floor, Status,Building } from '@/utils/constants';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import React from 'react';
 
 const Reports = () => {
@@ -82,7 +82,7 @@ const Reports = () => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = reports;
 
     if (filters.building) {
@@ -102,7 +102,7 @@ const Reports = () => {
     }
 
     setFilteredReports(filtered);
-  };
+  },[filters, reports]);
 
   useEffect(() => {
     applyFilters();

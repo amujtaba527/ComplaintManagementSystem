@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Area, ComplaintType } from "@/types/types";
+import { Area, Complaint, ComplaintType } from "@/types/types";
 import { Building, Floor } from "@/utils/constants";
 
 function getTodayDate() {
@@ -11,8 +11,8 @@ function getTodayDate() {
 }
 
 interface ComplaintFormProps {
-  editingComplaint?: any | null;
-  setEditingComplaint?: (complaint: any | null) => void;
+  editingComplaint?: Complaint | null;
+  setEditingComplaint?: (complaint: Complaint | null) => void;
 }
 
 export default function ComplaintForm({ editingComplaint, setEditingComplaint }: ComplaintFormProps) {
