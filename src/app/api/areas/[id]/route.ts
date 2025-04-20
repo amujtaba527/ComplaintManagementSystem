@@ -32,22 +32,22 @@ export async function DELETE(
 }
 
 
-// export async function PUT(
-//     request: NextRequest,
-//     { params }: { params: { id: string } }
-// ): Promise<Response> {
-//     const session = await getServerSession(authOptions);
-//     if (!session || session.user.role !== "admin") {
-//         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-//     }
+export async function PUT(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+): Promise<Response> {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "admin") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
 
-//     try {
-//         const { name } = await request.json();
-//         const id = params.id;
-//         const res = await pool.query("UPDATE areas SET area_name = $1 WHERE id = $2 RETURNING *", [name, id]);
-//         if (res.rowCount === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
-//         return NextResponse.json(res.rows[0]);
-//     } catch (error) {
-//         return NextResponse.json({ error: "Error updating area" }, { status: 500 });
-//     }
-// }
+    try {
+        const { name } = await request.json();
+        const {id} = await params;
+        const res = await pool.query("UPDATE areas SET area_name = $1 WHERE id = $2 RETURNING *", [name, id]);
+        if (res.rowCount === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
+        return NextResponse.json(res.rows[0]);
+    } catch (error) {
+        return NextResponse.json({ error: "Error updating area" }, { status: 500 });
+    }
+}
