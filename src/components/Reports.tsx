@@ -187,7 +187,7 @@ const Reports = () => {
                 <td className="border p-2 text-black">{complaint.floor}</td>
                 <td className="border p-2 text-black">{complaint.area_id ? complaint.area_name : "Deleted Area"}</td>
                 <td className="border p-2 text-black">{complaint.complaint_type_id ? complaint.complaint_type_name : "Deleted Type"}</td>
-                <td className="border p-2 text-black max-w-[200px] truncate">{complaint.details}</td>
+                <td className="border p-2 text-black max-w-[200px] text-wrap">{complaint.details}</td>
                 <td className={`border text-black p-2 ${complaint.status === "Resolved" ? "bg-green-200" : "bg-red-200"}`}>{complaint.status}</td>
                 <td className="border p-2 text-black">{complaint.action? complaint.action:"N/A"}</td>
                 <td className="border p-2 text-black">{complaint.resolution_date ? new Date(complaint.resolution_date).toDateString().trim() : "N/A"}</td>
