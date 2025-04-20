@@ -106,7 +106,7 @@ const Reports = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [filters]);
+  }, [applyFilters]);
 
   if (loading) {
     return <div>Loading...</div>;
