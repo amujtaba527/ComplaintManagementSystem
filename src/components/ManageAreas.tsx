@@ -44,7 +44,7 @@ export default function ManageAreas() {
         setEditingArea(null);
         setNewArea("");
       } catch (error) {
-        alert("Failed to update area");
+        alert("Failed to update area"+error); 
       }
     } else {
       // Add mode

@@ -48,6 +48,7 @@ export async function PUT(
         if (res.rowCount === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
         return NextResponse.json(res.rows[0]);
     } catch (error) {
+        console.error("Error updating area:", error);
         return NextResponse.json({ error: "Error updating area" }, { status: 500 });
     }
 }

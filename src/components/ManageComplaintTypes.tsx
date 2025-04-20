@@ -46,7 +46,7 @@ export default function ManageComplaintTypes() {
         setEditingType(null);
         setNewType("");
       } catch (error) {
-        alert("Failed to update complaint type");
+        alert("Failed to update complaint type"+error);
       }
     } else {
       // Add new type

@@ -16,6 +16,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       if (res.rowCount === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
       return NextResponse.json(res.rows[0]);
     } catch (error) {
+      console.error("Error updating complaint type:", error);
       return NextResponse.json({ error: "Error updating complaint type" }, { status: 500 });
     }
   }
