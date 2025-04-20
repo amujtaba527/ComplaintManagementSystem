@@ -71,7 +71,7 @@ export default function ComplaintActionTable() {
                 <td className="border p-2 text-black">{complaint.floor}</td>
                 <td className="border p-2 text-black">{complaint.area_name}</td>
                 <td className="border p-2 text-black">{complaint.complaint_type_name}</td>
-                <td className="border p-2 text-black max-w-[200px] truncate">{complaint.details}</td>
+                <td className="border p-2 text-black max-w-[200px] text-wrap">{complaint.details}</td>
                 <td className="border p-2 text-black">{complaint.status}</td>
                 <td className="p-2">
                   {complaint.status !== "Resolved" && (
