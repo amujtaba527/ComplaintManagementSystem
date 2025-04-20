@@ -63,7 +63,7 @@ export default function ManageAreas() {
       await fetch(`/api/areas/${id}`, { method: "DELETE" });
       setAreas(areas.filter((area) => area.id !== id));
     } catch (error) {
-      alert("Error deleting area");
+      alert("Error deleting area"+ ": " + error);
     }
   };
 

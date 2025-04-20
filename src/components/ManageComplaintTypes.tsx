@@ -67,7 +67,7 @@ export default function ManageComplaintTypes() {
       await fetch(`/api/complaint-types/${id}`, { method: "DELETE" });
       setComplaintTypes(complaintTypes.filter((type) => type.id !== id));
     } catch (error) {
-      alert("Error deleting type");
+      alert("Error deleting type"+":"+error);
     }
   };
 
