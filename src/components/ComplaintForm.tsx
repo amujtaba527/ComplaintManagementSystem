@@ -23,6 +23,9 @@ export default function ComplaintForm({ editingComplaint, setEditingComplaint }:
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Check if user is admin
+  const isAdmin = session?.user?.role === 'admin';
+
   const [formData, setFormData] = useState({
     date: getTodayDate().toLocaleDateString('en-CA'),
     user_id: "",
@@ -42,6 +45,17 @@ export default function ComplaintForm({ editingComplaint, setEditingComplaint }:
       }));
     }
   }, [session]);
+
+  // Reset date to current date for non-admin users
+  useEffect(() => {
+    if (!isAdmin) {
+      setSelectedDate(getTodayDate());
+      setFormData(prev => ({
+        ...prev,
+        date: getTodayDate().toLocaleDateString('en-CA')
+      }));
+    }
+  }, [isAdmin]);
 
   // Fetch areas and complaint types
   useEffect(() => {
@@ -212,6 +226,7 @@ export default function ComplaintForm({ editingComplaint, setEditingComplaint }:
         dateFormat="dd-MM-yyyy"
         className="border p-1 rounded text-black text-bold w-full mb-2"
         placeholderText="Select date"
+        disabled={!isAdmin}
       />
 
       {/* Building Selection */}
