@@ -40,6 +40,10 @@ export const Status = [
     {
         id: "Resolved",
         name: "Resolved"
+    },
+    {
+        id: "No Complaint",
+        name: "No Complaint"
     }
 ]
 

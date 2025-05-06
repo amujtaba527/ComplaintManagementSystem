@@ -20,7 +20,7 @@ export interface Complaint {
   complaint_type_id?: number ;
   complaint_type_name: string; 
   details: string;
-  status: "In-Progress" | "Resolved";
+  status: "In-Progress" | "Resolved" | "No Complaint";
   created_at: string;
   action: string | null;
   resolution_date: string | null; 

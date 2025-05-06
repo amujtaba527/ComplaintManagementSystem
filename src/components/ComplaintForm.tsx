@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Area, Complaint, ComplaintType } from "@/types/types";
 import { Building, Floor } from "@/utils/constants";
+import Link from "next/link";
 
 function getTodayDate() {
   return new Date();
@@ -215,9 +216,16 @@ export default function ComplaintForm({ editingComplaint, setEditingComplaint }:
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-4 shadow rounded">
-      <h3 className="text-lg text-black font-bold mb-2">
+      <div className="flex justify-around">
+        <h3 className="text-lg text-black font-bold mb-2 ">
         {editingComplaint ? 'Edit Complaint' : 'Submit Complaint'}
+        
       </h3>
+      <h3 className="text-lg text-black font-bold mb-2 ">
+      <Link href="/no-complaint">No Complaint</Link>
+      </h3>
+      </div>
+      
       {/*Date Selection*/}
       <label className="text-black block">Date:</label>
       <DatePicker
