@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { Complaint } from "@/types/types";
 import { useSession } from "next-auth/react";
 import ComplaintForm from "./ComplaintForm";
+import { Plus } from 'lucide-react';
 
 export default function ComplaintTable() {
   const { data: session } = useSession();
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingComplaint, setEditingComplaint] = useState<Complaint | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const fetchComplaints = async () => {
     try {
@@ -52,18 +54,44 @@ export default function ComplaintTable() {
     }
   };
 
+  const handleEditClick = (complaint: Complaint) => {
+    setEditingComplaint(complaint);
+    setShowModal(true);
+  };
+
+  const handleAddClick = () => {
+    setEditingComplaint(null);
+    setShowModal(true);
+  };
+
   if (loading) {
     return <div className="text-black">Loading...</div>;
   }
 
   return (
-    <div>
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-black">Complaints</h2>
+        <div className="flex gap-2">
+          <button 
+            onClick={handleAddClick}
+            className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            <Plus size={16} className="mr-1" />
+            Add New Complaint
+          </button>
+        </div>
+      </div>
+      
       <ComplaintForm 
         editingComplaint={editingComplaint}
         setEditingComplaint={setEditingComplaint}
+        showModal={showModal}
+        setShowModal={setShowModal}
+        refreshComplaints={fetchComplaints}
       />
       
-      <div className="bg-white p-4 shadow rounded mt-4 overflow-x-auto">
+      <div className="bg-white p-4 shadow rounded overflow-x-auto">
         <h3 className="text-lg text-black font-bold mb-2">Your Complaints</h3>
         <div className="min-w-full">
           {/* Desktop View */}
@@ -93,7 +121,7 @@ export default function ComplaintTable() {
                   <td className="border text-black p-2">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setEditingComplaint(complaint)}
+                        onClick={() => handleEditClick(complaint)}
                         className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
                       >
                         Edit
@@ -152,7 +180,7 @@ export default function ComplaintTable() {
 
                 <div className="flex gap-2 justify-end mt-4">
                   <button
-                    onClick={() => setEditingComplaint(complaint)}
+                    onClick={() => handleEditClick(complaint)}
                     className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm"
                   >
                     Edit
@@ -175,4 +203,3 @@ export default function ComplaintTable() {
     </div>
   );
 }
-
