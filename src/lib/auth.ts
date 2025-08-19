@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compare } from "bcryptjs";
+// import { compare } from "bcryptjs";
 import { Pool } from "pg";
 import { UserRoleType } from "@/types/types";
 
@@ -43,7 +43,8 @@ export const authOptions: NextAuthOptions = {
             throw new Error("User not found");
           }
 
-          const isValidPassword = await compare(credentials.password, user.password);
+          // const isValidPassword = await compare(credentials.password, user.password); 
+          const isValidPassword = credentials.password === user.password;
           if (!isValidPassword) {
             throw new Error("Invalid credentials");
           }

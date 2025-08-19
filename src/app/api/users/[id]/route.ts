@@ -2,7 +2,7 @@ import { authOptions } from "@/lib/auth";
 import { pool } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
+// import bcrypt from "bcryptjs";
 import { VALID_ROLES } from "@/utils/constants";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -29,7 +29,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     let queryParams;
 
     if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
+      // const hashedPassword = await bcrypt.hash(password, 10);
       query = `
         UPDATE users 
         SET name = $1, 
@@ -39,7 +39,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         WHERE id = $5
         RETURNING id, name, email, role
       `;
-      queryParams = [name, email, hashedPassword, role, id];
+      queryParams = [name, email, password, role, id];
     } else {
       query = `
         UPDATE users 

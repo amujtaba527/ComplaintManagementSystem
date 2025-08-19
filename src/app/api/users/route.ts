@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import bcrypt from "bcryptjs";
+// import bcrypt from "bcryptjs";
 import { VALID_ROLES } from "@/utils/constants";
 
 export async function GET() {
@@ -33,11 +33,11 @@ export async function POST(req: Request) {
     }
 
     // Hash the password before storing
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
     const res = await pool.query(
       "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role",
-      [name, email, hashedPassword, role]
+      [name, email, password, role]
     );
 
     return NextResponse.json(res.rows[0]);
