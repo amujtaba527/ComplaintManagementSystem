@@ -48,7 +48,7 @@ export default function ManageUsers() {
     setNewUser({
       name: user.name,
       email: user.email,
-      password: "", // Clear password field since it's hashed
+      password: "", 
       role: user.role
     });
     // Scroll to the form
@@ -166,7 +166,7 @@ export default function ManageUsers() {
                 className="border text-black border-gray-300 rounded-md p-2"
               />
               <input
-                type="password"
+                type="text"
                 placeholder={isEditing ? "New Password (optional)" : "Password"}
                 value={newUser.password}
                 onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
@@ -210,6 +210,7 @@ export default function ManageUsers() {
                 <tr className="bg-gray-200">
                   <th className="border text-black border-gray-300 px-4 py-2">Name</th>
                   <th className="border text-black border-gray-300 px-4 py-2">Username</th>
+                  <th className="border text-black border-gray-300 px-4 py-2">Password</th>
                   <th className="border text-black border-gray-300 px-4 py-2">Role</th>
                   <th className="border text-black border-gray-300 px-4 py-2">Actions</th>
                 </tr>
@@ -241,7 +242,18 @@ export default function ManageUsers() {
                         user.email
                       )}
                     </td>
-                    
+                    <td className="border text-black border-gray-300 px-4 py-2">
+                      {editingUser?.id === user.id ? (
+                        <input
+                          type="password"
+                          value={editingUser.password}
+                          onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
+                          className="w-full border rounded px-2 py-1"
+                        />
+                      ) : (
+                        user.password
+                      )}
+                    </td>
                     <td className="border text-black border-gray-300 px-4 py-2">
                       {editingUser?.id === user.id ? (
                         <select

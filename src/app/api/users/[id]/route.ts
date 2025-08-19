@@ -37,7 +37,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             password = $3, 
             role = $4
         WHERE id = $5
-        RETURNING id, name, email, role
+        RETURNING id, name, email, password, role
       `;
       queryParams = [name, email, password, role, id];
     } else {
@@ -47,7 +47,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             email = $2, 
             role = $3
         WHERE id = $4
-        RETURNING id, name, email, role
+        RETURNING id, name, email, password, role
       `;
       queryParams = [name, email, role, id];
     }

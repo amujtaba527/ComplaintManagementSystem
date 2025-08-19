@@ -7,7 +7,7 @@ import { VALID_ROLES } from "@/utils/constants";
 
 export async function GET() {
   try {
-    const res = await pool.query("SELECT id, name, email, role FROM users ORDER BY created_at DESC");
+    const res = await pool.query("SELECT id, name, email, password, role FROM users ORDER BY created_at DESC");
     return NextResponse.json(res.rows);
   } catch (error) {
     return NextResponse.json({ error: "Error fetching users" + error }, { status: 500 });
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     // const hashedPassword = await bcrypt.hash(password, 10);
 
     const res = await pool.query(
-      "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role",
+      "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, password, role",
       [name, email, password, role]
     );
 
