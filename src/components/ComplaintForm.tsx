@@ -232,7 +232,7 @@ export default function ComplaintForm({
           body: JSON.stringify({
             user_id: session.user.id,
             building: formData.building,
-            date: new Date().toISOString(),
+            date: formData.date
           }),
         });
   
@@ -241,7 +241,7 @@ export default function ComplaintForm({
         resetForm();
         setShowModal(false);
         refreshComplaints();
-        alert("No complaint submitted successfully!");
+        alert("Submitted successfully!");
       } catch (err) {
         alert("An error occurred while submitting");
         console.error("Error:", err);
@@ -250,6 +250,7 @@ export default function ComplaintForm({
       }
     }
 
+    if(!isNoComplaint){
     const url = editingComplaint 
       ? `/api/complaints/${editingComplaint.id}`
       : "/api/complaints";
@@ -262,9 +263,6 @@ export default function ComplaintForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          // Override details if it's a "No Complaint"
-          details: isNoComplaint ? "No complaints to report for this area" : formData.details,
-          status: isNoComplaint ? "No Complaint" : "Pending"
         }),
       });
     
@@ -291,7 +289,8 @@ export default function ComplaintForm({
     } finally {
       setLoading(false);
     }
-  };
+  }
+};
 
   if (!showModal) return null;
 
