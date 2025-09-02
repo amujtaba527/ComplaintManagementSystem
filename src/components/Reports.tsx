@@ -3,6 +3,12 @@ import { Complaint ,Area, ComplaintType} from '@/types/types';
 import { Floor, Status,Building } from '@/utils/constants';
 import { useCallback, useEffect, useState } from 'react';
 import React from 'react';
+// returns first date of the current month
+function getCurrentMonth() {
+  const date = new Date();
+  date.setDate(1);
+  return date;
+}
 
 const Reports = () => {
   const [reports, setReports] = useState<Complaint[]>([]);
@@ -15,7 +21,9 @@ const Reports = () => {
     floor: '',
     area_id: '',
     complaint_type_id: '',
-    status: ''
+    status: '',
+    from_date: getCurrentMonth(),
+    to_date: new Date()
   });
 
   const fetchReports = async () => {
@@ -100,6 +108,12 @@ const Reports = () => {
     if (filters.status) {
       filtered = filtered.filter(report => report.status.includes(filters.status));
     }
+    if (filters.from_date) {
+      filtered = filtered.filter(report => report.date >= filters.from_date.toISOString());
+    }
+    if (filters.to_date) {
+      filtered = filtered.filter(report => report.date <= filters.to_date.toISOString());
+    }
 
     setFilteredReports(filtered);
   },[filters, reports]);
@@ -115,7 +129,13 @@ const Reports = () => {
   return (
     <div className="bg-white p-2 sm:p-4 shadow rounded mt-4">
       <h3 className="text-lg font-bold text-black mb-2">All Complaints</h3>
-      
+      {/* Date Range Filter By default it will be current month */}
+      <div className="mb-4 flex-row gap-4 flex justify-items-start">
+        <label className="block text-black">From Date:</label>
+        <input type="date" className="border p-2 mb-2 text-black" value={filters.from_date.toISOString().split('T')[0]} onChange={(e) => setFilters(prev => ({ ...prev, from_date: new Date(e.target.value) }))} />
+        <label className="block text-black">To Date:</label>
+        <input type="date" className="border p-2 mb-2 text-black" value={filters.to_date.toISOString().split('T')[0]} onChange={(e) => setFilters(prev => ({ ...prev, to_date: new Date(e.target.value) }))} />
+      </div>
       <div className="mb-4 flex-row gap-4 flex justify-around">
         <div className="flex flex-row gap-4">
         <label className="block text-black">Building:</label>
