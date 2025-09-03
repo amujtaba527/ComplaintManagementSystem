@@ -225,9 +225,14 @@ export default function ComplaintForm({
         setLoading(false);
         return;
       }
+      const url = editingComplaint 
+      ? `/api/no-complaint/${editingComplaint.id}`
+      : "/api/no-complaint";
+    
+    const method = editingComplaint ? "PUT" : "POST";
       try {
-        const response = await fetch("/api/no-complaint", {
-          method: "POST",
+        const response = await fetch(url, {
+          method,
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_id: session.user.id,
@@ -235,13 +240,25 @@ export default function ComplaintForm({
             date: formData.date
           }),
         });
-  
-        if (!response.ok) throw new Error("Failed to submit");
+
+        const result = await response.json();
+    
+      if (response.ok) {
+        alert(editingComplaint ? "Complaint Updated!" : "Complaint Submitted!");
+        
+        // Save details to localStorage for suggestions (only for actual complaints)
+        if (formData.details && !suggestions.includes(formData.details) && !isNoComplaint) {
+          const updatedSuggestions = [...suggestions, formData.details];
+          setSuggestions(updatedSuggestions);
+          localStorage.setItem("complaintDetails", JSON.stringify(updatedSuggestions));
+        }
         
         resetForm();
         setShowModal(false);
         refreshComplaints();
-        alert("Submitted successfully!");
+      } else {
+        alert(`Error ${editingComplaint ? 'updating' : 'submitting'} complaint: ${result.error}`);
+      }
       } catch (err) {
         alert("An error occurred while submitting");
         console.error("Error:", err);
