@@ -8,8 +8,12 @@ export const Building = [
         name: "Building 2"
     },
     {
-        id: "Building 3",
-        name: "Building 3"
+        id: "Building 3 (O/A Level)",
+        name: "Building 3 (O/A Level)"
+    },
+    {
+        id: "Building 3 (6 to 8)",
+        name: "Building 3 (6 to 8)"
     }
 ]
 
