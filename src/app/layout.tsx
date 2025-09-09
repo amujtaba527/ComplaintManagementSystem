@@ -27,7 +27,7 @@ export default function RootLayout({
         <SessionProvider>
           <div className="min-h-screen bg-gray-100">
           {!isLoginPage && <Navbar />}
-          <div className={!isLoginPage ? "md:ml-64" : ""}>
+          <div>
               <main className="p-4">
                 {children}
               </main>

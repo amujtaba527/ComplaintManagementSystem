@@ -130,13 +130,13 @@ const Reports = () => {
     <div className="bg-white p-2 sm:p-4 shadow rounded mt-4">
       <h3 className="text-lg font-bold text-black mb-2">All Complaints</h3>
       {/* Date Range Filter By default it will be current month */}
-      <div className="mb-4 flex-row gap-4 flex justify-items-start">
+      <div className="mb-4 flex-row gap-4 flex justify-items-start flex-wrap">
         <label className="block text-black">From Date:</label>
         <input type="date" className="border p-2 mb-2 text-black" value={filters.from_date.toISOString().split('T')[0]} onChange={(e) => setFilters(prev => ({ ...prev, from_date: new Date(e.target.value) }))} />
         <label className="block text-black">To Date:</label>
         <input type="date" className="border p-2 mb-2 text-black" value={filters.to_date.toISOString().split('T')[0]} onChange={(e) => setFilters(prev => ({ ...prev, to_date: new Date(e.target.value) }))} />
       </div>
-      <div className="mb-4 flex-row gap-4 flex justify-around">
+      <div className="mb-4 flex-row gap-4 flex justify-around flex-wrap">
         <div className="flex flex-row gap-4">
         <label className="block text-black">Building:</label>
         <select name="building" value={filters.building} onChange={handleFilterChange} className="border p-2 mb-2  text-black">
