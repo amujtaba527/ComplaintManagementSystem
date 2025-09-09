@@ -3,12 +3,17 @@ import { useEffect, useState } from "react";
 import { Complaint } from "@/types/types";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useSession } from "next-auth/react";
 
 export default function ComplaintActionTable() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [complaintToResolve, setComplaintToResolve] = useState<number | null>(null);
   const [actionTaken, setActionTaken] = useState<string>("");
+
+  const { data: session } = useSession();
+
+  const userRole = session?.user?.role;
 
   useEffect(() => {
     fetch("/api/complaintaction")
@@ -64,65 +69,197 @@ export default function ComplaintActionTable() {
             </tr>
           </thead>
           <tbody>
-            {complaints.filter((complaint) => complaint.status === "In-Progress").map((complaint: Complaint) => (
-              <tr key={complaint.id} className="border">
-                <td className="border p-2 text-black">{new Date(complaint.date).toDateString()}</td>
-                <td className="border p-2 text-black">{complaint.building}</td>
-                <td className="border p-2 text-black">{complaint.floor}</td>
-                <td className="border p-2 text-black">{complaint.area_name}</td>
-                <td className="border p-2 text-black">{complaint.complaint_type_name}</td>
-                <td className="border p-2 text-black max-w-[200px] text-wrap">{complaint.details}</td>
-                <td className="border p-2 text-black">{complaint.status}</td>
-                <td className="p-2">
-                  {complaint.status !== "Resolved" && (
-                    <div className="flex items-center gap-2">
-                      {complaintToResolve === complaint.id ? (
-                        <>
-                          <DatePicker
-                            selected={selectedDate}
-                            onChange={(date: Date | null) => setSelectedDate(date)}
-                            dateFormat="yyyy-MM-dd"
-                            className="border p-1 rounded text-black"
-                            placeholderText="Select date"
-                          />
-                          <input
-                            type="text"
-                            value={actionTaken}
-                            onChange={(e) => setActionTaken(e.target.value)}
-                            placeholder="Action taken"
-                            className="border p-1 rounded text-black"
-                          />
-                          <button
-                            onClick={() => markAsResolved(complaint.id)}
-                            disabled={!selectedDate || !actionTaken}
-                            className="bg-green-500 text-white p-1 rounded disabled:bg-gray-400"
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            onClick={() => {
-                              setComplaintToResolve(null);
-                              setSelectedDate(null);
-                              setActionTaken("");
-                            }}
-                            className="bg-red-500 text-white p-1 rounded"
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => setComplaintToResolve(complaint.id)}
-                          className="bg-green-500 text-white p-1 rounded"
-                        >
-                          Mark Resolved
-                        </button>
+            {userRole === "manager" && (
+              complaints
+                .filter((complaint) => complaint.status === "In-Progress" && complaint.complaint_type_name !== "IT Issues")
+                .map((complaint: Complaint) => (
+                  <tr key={complaint.id} className="border">
+                    <td className="border p-2 text-black">{new Date(complaint.date).toDateString()}</td>
+                    <td className="border p-2 text-black">{complaint.building}</td>
+                    <td className="border p-2 text-black">{complaint.floor}</td>
+                    <td className="border p-2 text-black">{complaint.area_name}</td>
+                    <td className="border p-2 text-black">{complaint.complaint_type_name}</td>
+                    <td className="border p-2 text-black max-w-[200px] text-wrap">{complaint.details}</td>
+                    <td className="border p-2 text-black">{complaint.status}</td>
+                    <td className="p-2">
+                      {complaint.status !== "Resolved" && (
+                        <div className="flex items-center gap-2">
+                          {complaintToResolve === complaint.id ? (
+                            <>
+                              <DatePicker
+                                selected={selectedDate}
+                                onChange={(date: Date | null) => setSelectedDate(date)}
+                                dateFormat="yyyy-MM-dd"
+                                className="border p-1 rounded text-black"
+                                placeholderText="Select date"
+                              />
+                              <input
+                                type="text"
+                                value={actionTaken}
+                                onChange={(e) => setActionTaken(e.target.value)}
+                                placeholder="Action taken"
+                                className="border p-1 rounded text-black"
+                              />
+                              <button
+                                onClick={() => markAsResolved(complaint.id)}
+                                disabled={!selectedDate || !actionTaken}
+                                className="bg-green-500 text-white p-1 rounded disabled:bg-gray-400"
+                              >
+                                Confirm
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setComplaintToResolve(null);
+                                  setSelectedDate(null);
+                                  setActionTaken("");
+                                }}
+                                className="bg-red-500 text-white p-1 rounded"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => setComplaintToResolve(complaint.id)}
+                              className="bg-green-500 text-white p-1 rounded"
+                            >
+                              Mark Resolved
+                            </button>
+                          )}
+                        </div>
                       )}
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
+                    </td>
+                  </tr>
+                ))
+            )}
+
+            {userRole === "it_manager" && (
+              complaints
+                .filter((complaint) => complaint.status === "In-Progress" && complaint.complaint_type_name === "IT Issues")
+                .map((complaint: Complaint) => (
+                  <tr key={complaint.id} className="border">
+                    <td className="border p-2 text-black">{new Date(complaint.date).toDateString()}</td>
+                    <td className="border p-2 text-black">{complaint.building}</td>
+                    <td className="border p-2 text-black">{complaint.floor}</td>
+                    <td className="border p-2 text-black">{complaint.area_name}</td>
+                    <td className="border p-2 text-black">{complaint.complaint_type_name}</td>
+                    <td className="border p-2 text-black max-w-[200px] text-wrap">{complaint.details}</td>
+                    <td className="border p-2 text-black">{complaint.status}</td>
+                    <td className="p-2">
+                      {complaint.status !== "Resolved" && (
+                        <div className="flex items-center gap-2">
+                          {complaintToResolve === complaint.id ? (
+                            <>
+                              <DatePicker
+                                selected={selectedDate}
+                                onChange={(date: Date | null) => setSelectedDate(date)}
+                                dateFormat="yyyy-MM-dd"
+                                className="border p-1 rounded text-black"
+                                placeholderText="Select date"
+                              />
+                              <input
+                                type="text"
+                                value={actionTaken}
+                                onChange={(e) => setActionTaken(e.target.value)}
+                                placeholder="Action taken"
+                                className="border p-1 rounded text-black"
+                              />
+                              <button
+                                onClick={() => markAsResolved(complaint.id)}
+                                disabled={!selectedDate || !actionTaken}
+                                className="bg-green-500 text-white p-1 rounded disabled:bg-gray-400"
+                              >
+                                Confirm
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setComplaintToResolve(null);
+                                  setSelectedDate(null);
+                                  setActionTaken("");
+                                }}
+                                className="bg-red-500 text-white p-1 rounded"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => setComplaintToResolve(complaint.id)}
+                              className="bg-green-500 text-white p-1 rounded"
+                            >
+                              Mark Resolved
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+            )}
+
+{userRole === "admin" && (
+              complaints
+                .filter((complaint) => complaint.status === "In-Progress")
+                .map((complaint: Complaint) => (
+                  <tr key={complaint.id} className="border">
+                    <td className="border p-2 text-black">{new Date(complaint.date).toDateString()}</td>
+                    <td className="border p-2 text-black">{complaint.building}</td>
+                    <td className="border p-2 text-black">{complaint.floor}</td>
+                    <td className="border p-2 text-black">{complaint.area_name}</td>
+                    <td className="border p-2 text-black">{complaint.complaint_type_name}</td>
+                    <td className="border p-2 text-black max-w-[200px] text-wrap">{complaint.details}</td>
+                    <td className="border p-2 text-black">{complaint.status}</td>
+                    <td className="p-2">
+                      {complaint.status !== "Resolved" && (
+                        <div className="flex items-center gap-2">
+                          {complaintToResolve === complaint.id ? (
+                            <>
+                              <DatePicker
+                                selected={selectedDate}
+                                onChange={(date: Date | null) => setSelectedDate(date)}
+                                dateFormat="yyyy-MM-dd"
+                                className="border p-1 rounded text-black"
+                                placeholderText="Select date"
+                              />
+                              <input
+                                type="text"
+                                value={actionTaken}
+                                onChange={(e) => setActionTaken(e.target.value)}
+                                placeholder="Action taken"
+                                className="border p-1 rounded text-black"
+                              />
+                              <button
+                                onClick={() => markAsResolved(complaint.id)}
+                                disabled={!selectedDate || !actionTaken}
+                                className="bg-green-500 text-white p-1 rounded disabled:bg-gray-400"
+                              >
+                                Confirm
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setComplaintToResolve(null);
+                                  setSelectedDate(null);
+                                  setActionTaken("");
+                                }}
+                                className="bg-red-500 text-white p-1 rounded"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => setComplaintToResolve(complaint.id)}
+                              className="bg-green-500 text-white p-1 rounded"
+                            >
+                              Mark Resolved
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+            )}
           </tbody>
         </table>
       </div>
