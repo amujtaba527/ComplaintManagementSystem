@@ -4,6 +4,7 @@ import { Complaint } from "@/types/types";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSession } from "next-auth/react";
+import {CircleCheck} from 'lucide-react';
 
 export default function ComplaintActionTable() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -74,18 +75,18 @@ export default function ComplaintActionTable() {
                 .filter((complaint) => complaint.status === "In-Progress" && complaint.complaint_type_name !== "IT Issues")
                 .map((complaint: Complaint) => (
                   <tr key={complaint.id} className="border">
-                    <td className="border p-2 text-black">{new Date(complaint.date).toDateString()}</td>
-                    <td className="border p-2 text-black">{complaint.building}</td>
-                    <td className="border p-2 text-black">{complaint.floor}</td>
-                    <td className="border p-2 text-black">{complaint.area_name}</td>
-                    <td className="border p-2 text-black">{complaint.complaint_type_name}</td>
+                    <td className="border p-2 text-black text-center">{new Date(complaint.date).toDateString()}</td>
+                    <td className="border p-2 text-black text-center">{complaint.building}</td>
+                    <td className="border p-2 text-black text-center">{complaint.floor}</td>
+                    <td className="border p-2 text-black text-center">{complaint.area_name}</td>
+                    <td className="border p-2 text-black text-center">{complaint.complaint_type_name}</td>
                     <td className="border p-2 text-black max-w-[200px] text-wrap">{complaint.details}</td>
-                    <td className="border p-2 text-black">{complaint.status}</td>
+                    <td className="border p-2 text-black text-center bg-red-200">{complaint.status}</td>
                     <td className="p-2">
                       {complaint.status !== "Resolved" && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 justify-center flex-wrap">
                           {complaintToResolve === complaint.id ? (
-                            <>
+                            <div>
                               <DatePicker
                                 selected={selectedDate}
                                 onChange={(date: Date | null) => setSelectedDate(date)}
@@ -117,13 +118,13 @@ export default function ComplaintActionTable() {
                               >
                                 Cancel
                               </button>
-                            </>
+                            </div>
                           ) : (
                             <button
                               onClick={() => setComplaintToResolve(complaint.id)}
                               className="bg-green-500 text-white p-1 rounded"
                             >
-                              Mark Resolved
+                              <CircleCheck/>
                             </button>
                           )}
                         </div>
