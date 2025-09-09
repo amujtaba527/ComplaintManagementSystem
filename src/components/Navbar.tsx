@@ -56,10 +56,10 @@ export default function Navbar() {
   );
 
   // Get current page label
-  const getCurrentPageLabel = () => {
-    const currentLink = navLinks.find(link => link.href === pathname);
-    return currentLink ? ` | ${currentLink.label}` : '';
-  };
+  // const getCurrentPageLabel = () => {
+  //   const currentLink = navLinks.find(link => link.href === pathname);
+  //   return currentLink ? ` | ${currentLink.label}` : '';
+  // };
 
   const handleLogout = async () => {
     await signOut({
