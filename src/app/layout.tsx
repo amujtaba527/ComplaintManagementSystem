@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import Navbar from "../components/Navbar";
 import { usePathname } from "next/navigation";
 import {Poppins} from "next/font/google";
+import Head from "next/head";
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -23,6 +24,12 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <Head>
+        <title>Complaint Management System</title>
+        <meta name="description" content="Complaint Management System" />
+        <meta property="og:title" content="Complaint Management System" />
+        <meta property="og:description" content="Complaint Management System" />
+      </Head> 
       <body className={poppins.className}>
         <SessionProvider>
           <div className="min-h-screen bg-gray-100">
