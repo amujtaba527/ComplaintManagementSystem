@@ -88,8 +88,8 @@ export default function DashboardPage() {
             .slice(0, 10);
           setRecent(sorted);
         }
-      } catch (e: any) {
-        if (isMounted) setError(e?.message ?? 'Unknown error');
+      } catch (e: unknown) {
+        if (isMounted) setError((e as Error)?.message ?? 'Unknown error');
       } finally {
         if (isMounted) setLoading(false);
       }

@@ -112,8 +112,8 @@ export async function GET(req: Request) {
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("/api/dashboard error", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: (error as Error)?.message || "Internal Server Error" }, { status: 500 });
   }
 }
