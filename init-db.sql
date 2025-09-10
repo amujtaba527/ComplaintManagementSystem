@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS complaints (
     details TEXT NOT NULL,
     status VARCHAR(50),
     action TEXT NULL,
+    seen BOOLEAN DEFAULT FALSE,
     resolution_date TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (area_id) REFERENCES areas(id) ON DELETE SET NULL,

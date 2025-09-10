@@ -36,7 +36,6 @@ const Reports = () => {
       const data = await response.json();
       setReports(data);
       setFilteredReports(data);
-      console.log(data);
     } catch (error) {
       alert('Error fetching reports: ' + error);
     } finally {
@@ -53,7 +52,6 @@ const Reports = () => {
       }
       const data = await response.json();
       setAreas(data);
-      console.log(data);
     } catch (error) {
       alert('Error fetching areas: ' + error);
     } finally {
@@ -70,7 +68,6 @@ const Reports = () => {
           }
           const data = await response.json();
           setTypes(data);
-          console.log(data);
         } catch (error) {
           alert('Error fetching types: ' + error);
         } finally {
@@ -127,90 +124,100 @@ const Reports = () => {
   }
 
   return (
-    <div className="bg-white p-2 sm:p-4 shadow rounded mt-4">
-      <h3 className="text-lg font-bold text-black mb-2">All Complaints</h3>
+    <div className="container mx-auto bg-white p-3 sm:p-4 md:p-6 shadow rounded mt-4 overflow-x-auto">
+      <h3 className="text-xl md:text-2xl font-bold text-black mb-3 md:mb-4">All Complaints</h3>
       {/* Date Range Filter By default it will be current month */}
-      <div className="mb-4 flex-row gap-4 flex justify-items-start flex-wrap">
-        <label className="block text-black">From Date:</label>
-        <input type="date" className="border p-2 mb-2 text-black" value={filters.from_date.toISOString().split('T')[0]} onChange={(e) => setFilters(prev => ({ ...prev, from_date: new Date(e.target.value) }))} />
-        <label className="block text-black">To Date:</label>
-        <input type="date" className="border p-2 mb-2 text-black" value={filters.to_date.toISOString().split('T')[0]} onChange={(e) => setFilters(prev => ({ ...prev, to_date: new Date(e.target.value) }))} />
+      <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4 items-end">
+        <div className="flex flex-col gap-1">
+          <label className="block text-black text-sm md:text-base">From Date:</label>
+          <input type="date" className="border p-2 md:p-2.5 text-black w-full" value={filters.from_date.toISOString().split('T')[0]} onChange={(e) => setFilters(prev => ({ ...prev, from_date: new Date(e.target.value) }))} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="block text-black text-sm md:text-base">To Date:</label>
+          <input type="date" className="border p-2 md:p-2.5 text-black w-full" value={filters.to_date.toISOString().split('T')[0]} onChange={(e) => setFilters(prev => ({ ...prev, to_date: new Date(e.target.value) }))} />
+        </div>
       </div>
-      <div className="mb-4 flex-row gap-4 flex justify-around flex-wrap">
-        <div className="flex flex-row gap-4">
-        <label className="block text-black">Building:</label>
-        <select name="building" value={filters.building} onChange={handleFilterChange} className="border p-2 mb-2  text-black">
-          <option value="">All Buildings</option>
-          {Building.map(building => (
-              <option key={building.id} value={building.name}>{building.name}</option>
-              ))}
-        </select></div>
-        
-        <div className="flex flex-row gap-4">
-        <label className="block text-black">Floor:</label>
-        <select name="floor" value={filters.floor} onChange={handleFilterChange} className="border p-2 mb-2  text-black">
-            <option value="">All Floors</option>
-            {Floor.map(floor => (
-                <option key={floor.id} value={floor.id}>{floor.name}</option>
-                ))} 
-        </select></div>
-        
-        <div className="flex flex-row gap-4">
-        <label className="block text-black">Area:</label>
-        <select name="area_id" value={filters.area_id} onChange={handleFilterChange} className="border p-2 mb-2 text-black">
-          <option value="">All Areas</option>
-            {areas.map(area => (
-                <option key={area.id} value={area.id}>{area.area_name}</option>
+      <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="flex flex-col gap-1">
+          <label className="block text-black text-sm md:text-base">Building:</label>
+          <select name="building" value={filters.building} onChange={handleFilterChange} className="border p-2 md:p-2.5 text-black w-full">
+            <option value="">All Buildings</option>
+            {Building.map(building => (
+                <option key={building.id} value={building.name}>{building.name}</option>
                 ))}
-        </select></div>
+          </select>
+        </div>
         
-        <div className="flex flex-row gap-4">
-        <label className="block text-black">Complaint Type:</label>
-        <select name="complaint_type_id" value={filters.complaint_type_id} onChange={handleFilterChange} className="border p-2 mb-2 text-black">
-          <option value="">All Types</option>
-           {types.map(type => (
-                <option key={type.id} value={type.id}>{type.type_name}</option>
+        <div className="flex flex-col gap-1">
+          <label className="block text-black text-sm md:text-base">Floor:</label>
+          <select name="floor" value={filters.floor} onChange={handleFilterChange} className="border p-2 md:p-2.5 text-black w-full">
+              <option value="">All Floors</option>
+              {Floor.map(floor => (
+                  <option key={floor.id} value={floor.id}>{floor.name}</option>
+                  ))} 
+          </select>
+        </div>
+        
+        <div className="flex flex-col gap-1">
+          <label className="block text-black text-sm md:text-base">Area:</label>
+          <select name="area_id" value={filters.area_id} onChange={handleFilterChange} className="border p-2 md:p-2.5 text-black w-full">
+            <option value="">All Areas</option>
+              {areas.map(area => (
+                  <option key={area.id} value={area.id}>{area.area_name}</option>
+                  ))}
+          </select>
+        </div>
+        
+        <div className="flex flex-col gap-1">
+          <label className="block text-black text-sm md:text-base">Complaint Type:</label>
+          <select name="complaint_type_id" value={filters.complaint_type_id} onChange={handleFilterChange} className="border p-2 md:p-2.5 text-black w-full">
+            <option value="">All Types</option>
+             {types.map(type => (
+                  <option key={type.id} value={type.id}>{type.type_name}</option>
+                  ))}
+          </select>
+        </div>
+        
+        <div className="flex flex-col gap-1">
+          <label className="block text-black text-sm md:text-base">Status:</label>
+          <select name="status" value={filters.status} onChange={handleFilterChange} className="border p-2 md:p-2.5 text-black w-full">
+            <option value="">All Statuses</option>
+            {Status.map(status => (
+                <option key={status.id} value={status.name}>{status.name}</option>
                 ))}
-        </select></div>
-        
-        <div className="flex flex-row gap-4">
-        <label className="block text-black">Status:</label>
-        <select name="status" value={filters.status} onChange={handleFilterChange} className="border p-2 mb-2 text-black">
-          <option value="">All Statuses</option>
-          {Status.map(status => (
-              <option key={status.id} value={status.name}>{status.name}</option>
-              ))}
-        </select>
+          </select>
         </div>
       </div>
 
       <div className="block overflow-x-auto">
-        <table className="w-full border">
+        <table className="w-full min-w-[900px] border">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border p-2 text-black">Issue Date</th>
-              <th className="border p-2 text-black">Building</th>
-              <th className="border p-2 text-black">Floor</th>
-              <th className="border p-2 text-black">Area</th>
-              <th className="border p-2 text-black">Type</th>
-              <th className="border p-2 text-black">Details</th>
-              <th className="border p-2 text-black">Status</th>
-              <th className="border p-2 text-black">Actions</th>
-              <th className="border p-2 text-black">Resolution Date</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">Issue Date</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">Building</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">Floor</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">Area</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">Type</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm">Details</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">Status</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">Seen Date</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">Actions</th>
+              <th className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">Resolution Date</th>
             </tr>
           </thead>
           <tbody>
             {filteredReports.map((complaint: Complaint) => (
               <tr key={complaint.id} className="border">
-                <td className="border p-2 text-black">{new Date(complaint.date).toDateString()}</td>
-                <td className="border p-2 text-black">{complaint.building}</td>
-                <td className="border p-2 text-black">{complaint.floor}</td>
-                <td className="border p-2 text-black">{complaint.area_id ? complaint.area_name : "Deleted Area"}</td>
-                <td className="border p-2 text-black">{complaint.complaint_type_id ? complaint.complaint_type_name : "Deleted Type"}</td>
-                <td className="border p-2 text-black max-w-[200px] text-wrap">{complaint.details}</td>
-                <td className={`border text-black p-2 ${complaint.status === "Resolved" ? "bg-green-200" : complaint.status=== "In-Progress" ? "bg-red-200" : complaint.status=== "No Complaint" ? "bg-blue-200" : ""}`}>{complaint.status}</td>
-                <td className="border p-2 text-black">{complaint.action? complaint.action:"N/A"}</td>
-                <td className="border p-2 text-black">{complaint.resolution_date ? new Date(complaint.resolution_date).toDateString().trim() : "N/A"}</td>
+                <td className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">{new Date(complaint.date).toDateString()}</td>
+                <td className="border p-2 md:p-3 text-black text-xs md:text-sm">{complaint.building}</td>
+                <td className="border p-2 md:p-3 text-black text-xs md:text-sm">{complaint.floor}</td>
+                <td className="border p-2 md:p-3 text-black text-xs md:text-sm">{complaint.area_id ? complaint.area_name : "Deleted Area"}</td>
+                <td className="border p-2 md:p-3 text-black text-xs md:text-sm">{complaint.complaint_type_id ? complaint.complaint_type_name : "Deleted Type"}</td>
+                <td className="border p-2 md:p-3 text-black text-xs md:text-sm max-w-[12rem] md:max-w-xs break-words">{complaint.details}</td>
+                <td className={`border text-black p-2 md:p-3 text-xs md:text-sm ${complaint.status === "Resolved" ? "bg-green-200" : complaint.status=== "In-Progress" ? "bg-red-200" : complaint.status=== "No Complaint" ? "bg-blue-200" : ""}`}>{complaint.status}</td>
+                <td className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">{complaint.seen_date ? new Date(complaint.seen_date).toDateString().trim() : "N/A"}</td>
+                <td className="border p-2 md:p-3 text-black text-xs md:text-sm">{complaint.action? complaint.action:"N/A"}</td>
+                <td className="border p-2 md:p-3 text-black text-xs md:text-sm whitespace-nowrap">{complaint.resolution_date ? new Date(complaint.resolution_date).toDateString().trim() : "N/A"}</td>
               </tr>
             ))}
           </tbody>

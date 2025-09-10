@@ -4,7 +4,7 @@ import { Complaint } from "@/types/types";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSession } from "next-auth/react";
-import {CircleCheck} from 'lucide-react';
+import {CircleCheck, Eye,EyeOff} from 'lucide-react';
 
 export default function ComplaintActionTable() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -49,6 +49,28 @@ export default function ComplaintActionTable() {
       alert('Failed to mark complaint as resolved' + error);
     }
   };
+
+  const markAsSeen = async(id:number)=>{
+    try{
+      const response = await fetch(`/api/complaint-seen/`, {
+        method: "POST",
+        body: JSON.stringify({ seen_by: session?.user?.id, seen_date: new Date().toISOString(), complaint_id: id }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to mark complaint as seen');
+      }
+
+      // Refresh complaints list
+      setComplaints((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, seen: true } : c))
+      );
+    }
+    catch(error){
+      alert('Failed to mark complaint as seen' + error);
+    }
+  }
 
   return (
     <div className="bg-white p-2 sm:p-4 shadow rounded mt-4">
@@ -120,12 +142,26 @@ export default function ComplaintActionTable() {
                               </button>
                             </div>
                           ) : (
+                            <div className="flex items-center gap-2">
+                              {complaint.seen ? (
+                                <div className="bg-green-500 text-white p-1 rounded">
+                                  <Eye/>
+                                </div>
+                              ) : (
+                                <button
+                              onClick={() => markAsSeen(complaint.id)}
+                              className="bg-red-500 text-white p-1 rounded"
+                              >
+                                <EyeOff/>
+                              </button>
+                              )}
                             <button
                               onClick={() => setComplaintToResolve(complaint.id)}
                               className="bg-green-500 text-white p-1 rounded"
                             >
                               <CircleCheck/>
                             </button>
+                            </div>
                           )}
                         </div>
                       )}
@@ -184,12 +220,26 @@ export default function ComplaintActionTable() {
                               </button>
                             </>
                           ) : (
+                            <div className="flex items-center gap-2">
+                              {complaint.seen ? (
+                                <div className="bg-green-500 text-white p-1 rounded">
+                                  <Eye/>
+                                </div>
+                              ) : (
+                                <button
+                              onClick={() => markAsSeen(complaint.id)}
+                              className="bg-red-500 text-white p-1 rounded"
+                              >
+                                <EyeOff/>
+                              </button>
+                              )}
                             <button
                               onClick={() => setComplaintToResolve(complaint.id)}
                               className="bg-green-500 text-white p-1 rounded"
                             >
-                              Mark Resolved
+                              <CircleCheck/>
                             </button>
+                            </div>
                           )}
                         </div>
                       )}
@@ -248,12 +298,26 @@ export default function ComplaintActionTable() {
                               </button>
                             </>
                           ) : (
+                            <div className="flex items-center gap-2">
+                              {complaint.seen ? (
+                                <div className="bg-green-500 text-white p-1 rounded">
+                                  <Eye/>
+                                </div>
+                              ) : (
+                                <button
+                              onClick={() => markAsSeen(complaint.id)}
+                              className="bg-red-500 text-white p-1 rounded"
+                              >
+                                <EyeOff/>
+                              </button>
+                              )}
                             <button
                               onClick={() => setComplaintToResolve(complaint.id)}
                               className="bg-green-500 text-white p-1 rounded"
                             >
-                              Mark Resolved
+                              <CircleCheck/>
                             </button>
+                            </div>
                           )}
                         </div>
                       )}

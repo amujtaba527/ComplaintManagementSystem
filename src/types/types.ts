@@ -21,6 +21,9 @@ export interface Complaint {
   complaint_type_name: string; 
   details: string;
   status: "In-Progress" | "Resolved" | "No Complaint";
+  seen_date: string | null;
+  seen_by: number | null;
+  seen: boolean | null;
   created_at: string;
   action: string | null;
   resolution_date: string | null; 
