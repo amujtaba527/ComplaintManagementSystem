@@ -20,8 +20,8 @@ export async function POST(req: Request) {
     }
 
     const query = `
-      INSERT INTO complaints (user_id, building, floor, area_id, complaint_type_id, details, status, action, resolution_date) 
-      VALUES ($1, $2, 'No Complaint', 999, 999, 'No Complaint', 'No Complaint', 'No Complaint', $3) RETURNING *;
+      INSERT INTO complaints (user_id, building, floor, area_id, complaint_type_id, details, status, action, resolution_date, seen) 
+      VALUES ($1, $2, 'No Complaint', 999, 999, 'No Complaint', 'No Complaint', 'No Complaint', $3,true) RETURNING *;
     `;
 
     const values = [user_id, building, formattedDate];
