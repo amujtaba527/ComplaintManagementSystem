@@ -14,16 +14,20 @@ CREATE TABLE IF NOT EXISTS complaint_types (
     type_name VARCHAR(255) NOT NULL
 );
 
--- Create Complaint Detail Table (Managed by Admin)
-CREATE TABLE IF NOT EXISTS complaint_detail (
-    id SERIAL PRIMARY KEY,
-    detail TEXT NOT NULL
-);
-
 -- Create Areas Table (Managed by Admin)
 CREATE TABLE IF NOT EXISTS areas (
     id SERIAL PRIMARY KEY,
     area_name VARCHAR(255) NOT NULL
+);
+
+-- Create Complaint-Seen Table 
+CREATE TABLE IF NOT EXISTS complaint_seen (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    complaint_id INT NOT NULL,
+    seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (complaint_id) REFERENCES complaints(id) ON DELETE SET NULL
 );
 
 -- Create Complaints Table
