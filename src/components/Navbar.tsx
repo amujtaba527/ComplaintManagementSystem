@@ -17,6 +17,11 @@ export default function Navbar() {
 
   const navLinks: NavLink[] = [
     {
+      href: "/dashboard",
+      label: "Dashboard",
+      roles: ["admin", "owner", "manager", "it_manager"]
+    },
+    {
       href: "/complaintentry",
       label: "Complaint Entry",
       roles: ["employee", "admin"]
