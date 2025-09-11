@@ -72,9 +72,60 @@ export default function ComplaintActionTable() {
     }
   }
 
+  // Complaints visible in the table based on current user's role (mirrors table filters)
+  const visibleComplaints: Complaint[] = userRole === "manager"
+    ? complaints.filter((c) => c.status === "In-Progress" && c.complaint_type_name !== "IT Issues")
+    : userRole === "it_manager"
+      ? complaints.filter((c) => c.status === "In-Progress" && c.complaint_type_name === "IT Issues")
+      : userRole === "admin"
+        ? complaints.filter((c) => c.status === "In-Progress")
+        : [];
+
+  // Export the visible complaints to a PDF
+  const exportToPDF = async () => {
+    try {
+      const jspdfModule = await import("jspdf");
+      const autoTable = (await import("jspdf-autotable")).default as any;
+      const doc = new jspdfModule.jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+
+      const head = [["Date", "Building", "Floor", "Area", "Type", "Details", "Status"]];
+      const body = visibleComplaints.map((c) => [
+        new Date(c.date).toDateString(),
+        c.building,
+        c.floor,
+        c.area_name,
+        c.complaint_type_name,
+        c.details,
+        c.status,
+      ]);
+
+      autoTable(doc, {
+        head,
+        body,
+        styles: { fontSize: 8, cellPadding: 4, overflow: "linebreak" },
+        headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+        columnStyles: { 5: { cellWidth: 200 } },
+        margin: 20,
+      });
+
+      doc.save(`complaints_${new Date().toISOString().slice(0,10)}.pdf`);
+    } catch (err) {
+      alert("Failed to generate PDF. Please ensure dependencies are installed: jspdf, jspdf-autotable.");
+    }
+  };
+
   return (
     <div className="bg-white p-2 sm:p-4 shadow rounded mt-4">
-      <h3 className="text-lg font-bold text-black mb-2">All Complaints</h3>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-lg font-bold text-black">All Complaints</h3>
+        <button
+          onClick={exportToPDF}
+          disabled={visibleComplaints.length === 0}
+          className="bg-blue-600 text-white px-3 py-1 rounded disabled:bg-gray-400"
+        >
+          Download PDF
+        </button>
+      </div>
       
       {/* Table view for medium and larger screens */}
       <div className="hidden md:block overflow-x-auto">
@@ -93,7 +144,7 @@ export default function ComplaintActionTable() {
           </thead>
           <tbody>
             {userRole === "manager" && (
-              complaints
+              visibleComplaints
                 .filter((complaint) => complaint.status === "In-Progress" && complaint.complaint_type_name !== "IT Issues")
                 .map((complaint: Complaint) => (
                   <tr key={complaint.id} className="border">
@@ -171,7 +222,7 @@ export default function ComplaintActionTable() {
             )}
 
             {userRole === "it_manager" && (
-              complaints
+              visibleComplaints
                 .filter((complaint) => complaint.status === "In-Progress" && complaint.complaint_type_name === "IT Issues")
                 .map((complaint: Complaint) => (
                   <tr key={complaint.id} className="border">
@@ -249,7 +300,7 @@ export default function ComplaintActionTable() {
             )}
 
 {userRole === "admin" && (
-              complaints
+              visibleComplaints
                 .filter((complaint) => complaint.status === "In-Progress")
                 .map((complaint: Complaint) => (
                   <tr key={complaint.id} className="border">
@@ -331,7 +382,7 @@ export default function ComplaintActionTable() {
 
       {/* Card view for small screens */}
       <div className="md:hidden space-y-4">
-        {complaints.filter((complaint) => complaint.status !== "Resolved").map((complaint: Complaint) => (
+        {visibleComplaints.filter((complaint) => complaint.status !== "Resolved").map((complaint: Complaint) => (
           <div key={complaint.id} className="border rounded-lg p-4 bg-gray-50">
             <div className="grid grid-cols-2 gap-2">
               <div>
