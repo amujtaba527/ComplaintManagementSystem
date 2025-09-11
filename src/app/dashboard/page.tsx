@@ -25,6 +25,7 @@ interface Complaint {
 interface DashboardCounts {
   total: number;
   open: number;
+  createdThisMonth: number;
   inProgress: number;
   unseen: number;
   resolvedThisMonth: number;
@@ -88,7 +89,7 @@ export default function DashboardPage() {
             .slice(0, 10);
           setRecent(sorted);
         }
-      } catch (e: unknown) {
+      } catch (e: unknown) { 
         if (isMounted) setError((e as Error)?.message ?? 'Unknown error');
       } finally {
         if (isMounted) setLoading(false);
@@ -119,7 +120,7 @@ export default function DashboardPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <KPICard label="Total Complaints" value={metrics?.counts.total ?? 0} accent="indigo" />
-        <KPICard label="Open" value={metrics?.counts.open ?? 0} accent="amber" />
+        <KPICard label="Complaints (This Month)" value={metrics?.counts.createdThisMonth ?? 0} accent="amber" />
         <KPICard label="In-Progress" value={metrics?.counts.inProgress ?? 0} accent="sky" />
         <KPICard label="Resolved (This Month)" value={metrics?.counts.resolvedThisMonth ?? 0} accent="emerald" />
       </div>

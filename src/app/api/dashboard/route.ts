@@ -53,10 +53,11 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const { whereClause, values } = buildFilters(searchParams);
 
-    // Metrics queries
+    // Metrics queries 
     const queries = {
       total: `SELECT COUNT(*)::int AS count FROM complaints ${whereClause};`,
       open: `SELECT COUNT(*)::int AS count FROM complaints ${whereClause ? whereClause + ' AND' : 'WHERE'} COALESCE(status,'') <> 'Resolved';`,
+      createdThisMonth: `SELECT COUNT(*)::int AS count FROM complaints ${whereClause ? whereClause + ' AND' : 'WHERE'} DATE_TRUNC('month', date) = DATE_TRUNC('month', CURRENT_DATE);`,
       inProgress: `SELECT COUNT(*)::int AS count FROM complaints ${whereClause ? whereClause + ' AND' : 'WHERE'} status = 'In-Progress';`,
       unseen: `SELECT COUNT(*)::int AS count FROM complaints ${whereClause ? whereClause + ' AND' : 'WHERE'} seen = false;`,
       resolvedThisMonth: `SELECT COUNT(*)::int AS count FROM complaints ${whereClause ? whereClause + ' AND' : 'WHERE'} status = 'Resolved' AND DATE_TRUNC('month', resolution_date) = DATE_TRUNC('month', CURRENT_DATE);`,
@@ -80,9 +81,10 @@ export async function GET(req: Request) {
     // for those, we reuse the same params array.
     const client = await pool.connect();
     try {
-      const [total, open, inProgress, unseen, resolvedThisMonth, avgResolutionDays, byStatus, byType, byDate] = await Promise.all([
+      const [total, open, createdThisMonth, inProgress, unseen, resolvedThisMonth, avgResolutionDays, byStatus, byType, byDate] = await Promise.all([
         client.query(queries.total, values),
         client.query(queries.open, values),
+        client.query(queries.createdThisMonth, values),
         client.query(queries.inProgress, values),
         client.query(queries.unseen, values),
         client.query(queries.resolvedThisMonth, values),
@@ -96,6 +98,7 @@ export async function GET(req: Request) {
         counts: {
           total: total.rows[0]?.count ?? 0,
           open: open.rows[0]?.count ?? 0,
+          createdThisMonth: createdThisMonth.rows[0]?.count ?? 0,
           inProgress: inProgress.rows[0]?.count ?? 0,
           unseen: unseen.rows[0]?.count ?? 0,
           resolvedThisMonth: resolvedThisMonth.rows[0]?.count ?? 0,
