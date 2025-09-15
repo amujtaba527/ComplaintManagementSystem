@@ -2,7 +2,10 @@
 import { Complaint ,Area, ComplaintType} from '@/types/types';
 import { Floor, Status,Building } from '@/utils/constants';
 import { useCallback, useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import React from 'react';
+import * as XLSX from 'xlsx';
+import { jsPDF } from "jspdf";
 // returns first date of the current month
 function getCurrentMonth() {
   const date = new Date();
@@ -11,6 +14,7 @@ function getCurrentMonth() {
 }
 
 const Reports = () => {
+  const { data: session } = useSession();
   const [reports, setReports] = useState<Complaint[]>([]);
   const [filteredReports, setFilteredReports] = useState<Complaint[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
@@ -123,6 +127,30 @@ const Reports = () => {
     return <div>Loading...</div>;
   }
 
+  const exportToPDF = async () => {
+    const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+    // doc.text("Complaints Report", 10, 10);
+    const autoTable = (await import("jspdf-autotable")).default as any;
+    const head = [['Date', 'Building', 'Floor', 'Area', 'Type', 'Details', 'Status', 'Seen Date', 'Action','Resolution Date']];
+    const body = filteredReports.map(report => [new Date(report.date).toDateString(), report.building, report.floor, report.area_name, report.complaint_type_name, report.details, report.status, report.seen ? new Date(report.seen_date as string).toDateString() : 'Not Seen', report.action?report.action:'No Action Taken', report.resolution_date ? new Date(report.resolution_date as string).toDateString() : 'Not Resolved']);
+    autoTable(doc, {
+      head,
+      body,
+      margin: 10,
+      styles: { fontSize: 10, cellPadding: 4, overflow: "linebreak" },
+      headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+      columnStyles: { 5: { cellWidth: 150 }, 9: { cellWidth: 100 }, 10: { cellWidth: 100 } },
+    });
+    doc.save("complaints-report.pdf");
+  };
+ 
+  const exportToXLSX = () => {
+    const ws = XLSX.utils.json_to_sheet(filteredReports.map(report => ({Date: new Date(report.date).toDateString(), Building: report.building, Floor: report.floor, Area: report.area_name, Type: report.complaint_type_name, Details: report.details, Status: report.status, Seen: report.seen ? new Date(report.seen_date as string).toDateString() : 'Not Seen', Action: report.action?report.action:'No Action Taken', ResolutionDate: report.resolution_date ? new Date(report.resolution_date as string).toDateString() : 'Not Resolved'})));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Complaints Report");
+    XLSX.writeFile(wb, "complaints-report.xlsx");
+  };
+
   return (
     <div className="container mx-auto bg-white p-3 sm:p-4 md:p-6 shadow rounded mt-4 overflow-x-auto">
       <h3 className="text-xl md:text-2xl font-bold text-black mb-3 md:mb-4">All Complaints</h3>
@@ -136,6 +164,13 @@ const Reports = () => {
           <label className="block text-black text-sm md:text-base">To Date:</label>
           <input type="date" className="border p-2 md:p-2.5 text-black w-full" value={filters.to_date.toISOString().split('T')[0]} onChange={(e) => setFilters(prev => ({ ...prev, to_date: new Date(e.target.value) }))} />
         </div>
+        {/* Download buttons for the report in pdf or xlsx only for admin*/}
+        {session?.user?.role === "admin" && (
+          <div className="flex flex-row gap-1 items-end justify-end">
+            <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 md:p-2.5 rounded" onClick={exportToPDF}>Download PDF</button>
+            <button className="bg-green-500 hover:bg-green-600 text-white p-2 md:p-2.5 rounded" onClick={exportToXLSX}>Download XLSX</button>
+          </div>
+        )}
       </div>
       <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <div className="flex flex-col gap-1">

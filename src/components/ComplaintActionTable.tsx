@@ -102,9 +102,9 @@ export default function ComplaintActionTable() {
       autoTable(doc, {
         head,
         body,
-        styles: { fontSize: 8, cellPadding: 4, overflow: "linebreak" },
+        styles: { fontSize: 10, cellPadding: 4, overflow: "linebreak" },
         headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        columnStyles: { 5: { cellWidth: 200 } },
+        columnStyles: { 5: { cellWidth: 150 } },
         margin: 20,
       });
 
